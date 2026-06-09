@@ -5,7 +5,430 @@ import {
   Upload, Image, Pause, RotateCcw, AlertCircle, Info, Printer
 } from 'lucide-react';
 
+// ============================================================
+// ESTATÍSTICAS TAB — Registro de Ações com Filtros
+// ============================================================
+function EstatisticasTab({ data }) {
+  const [filterGame, setFilterGame] = useState('');
+  const [filterHalf, setFilterHalf] = useState('');       // '1' | '2' | 'pe' | ''
+  const [filterTeam, setFilterTeam] = useState('');       // 'casa' | 'fora' | ''
+  const [filterCategory, setFilterCategory] = useState('');
+  const [filterAction, setFilterAction] = useState('');
+  const [filterPlayer, setFilterPlayer] = useState('');
+
+  // Collect all events from every game (or selected game)
+  const getAllEvents = () => {
+    const gameIds = filterGame
+      ? [filterGame]
+      : data.games.map(g => g.id);
+
+    let events = [];
+    gameIds.forEach(gid => {
+      try {
+        const raw = localStorage.getItem(`sportluiz_events_${gid}`);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          parsed.forEach(ev => events.push({ ...ev, gameId: gid }));
+        }
+      } catch (_) {}
+    });
+    return events;
+  };
+
+  const rawEvents = getAllEvents();
+
+  // Resolve helper: get action type for an action id
+  const getActionType = (actionId) => {
+    for (const cat of data.categories) {
+      const act = cat.actions.find(a => a.id === actionId);
+      if (act) return act.type;
+    }
+    return null;
+  };
+
+  const getCategoryForAction = (actionId) => {
+    for (const cat of data.categories) {
+      if (cat.actions.find(a => a.id === actionId)) return cat.id;
+    }
+    return null;
+  };
+
+  // Derived: all action ids for selected category
+  const actionsForCategory = filterCategory
+    ? (data.categories.find(c => c.id === filterCategory)?.actions || [])
+    : data.categories.flatMap(c => c.actions);
+
+  // Filter events
+  const filtered = rawEvents.filter(ev => {
+    // Half filter (1st = minute 0-20, 2nd = 21-40, PE = 41+)
+    if (filterHalf) {
+      if (filterHalf === '1' && ev.minute > 20) return false;
+      if (filterHalf === '2' && (ev.minute <= 20 || ev.minute > 40)) return false;
+      if (filterHalf === 'pe' && ev.minute <= 40) return false;
+    }
+
+    // Team (home/away) filter: derive from game
+    if (filterTeam) {
+      const game = data.games.find(g => g.id === ev.gameId);
+      if (!game) return false;
+      if (filterTeam === 'casa' && game.homeAway !== 'Casa') return false;
+      if (filterTeam === 'fora' && game.homeAway !== 'Fora') return false;
+    }
+
+    // Category filter: look up which category the action belongs to
+    if (filterCategory) {
+      const catId = getCategoryForAction(ev.type) || getCategoryForActionByName(ev.actionName);
+      // simpler approach: match by action name being in that category
+      const catActions = data.categories.find(c => c.id === filterCategory)?.actions || [];
+      const inCat = catActions.some(a => a.name === ev.actionName || a.type === ev.type);
+      if (!inCat) return false;
+    }
+
+    // Action filter
+    if (filterAction) {
+      const act = actionsForCategory.find(a => a.id === filterAction);
+      if (!act) return false;
+      if (ev.actionName !== act.name && ev.type !== act.type) return false;
+    }
+
+    // Player filter
+    if (filterPlayer) {
+      if (ev.playerId !== filterPlayer) return false;
+    }
+
+    return true;
+  });
+
+  // Placeholder helper (avoid ReferenceError)
+  function getCategoryForActionByName() { return null; }
+
+  // Summary counts
+  const totalEvents = filtered.length;
+  const goalCount = filtered.filter(ev => ev.type === 'GOAL').length;
+  const shotCount = filtered.filter(ev => ev.type === 'SHOT' || ev.type === 'SHOT_FAIL').length;
+  const passCount = filtered.filter(ev => ev.type === 'PASS' || ev.type === 'PASS_FAIL').length;
+  const foulCount = filtered.filter(ev => ev.type === 'FOUL').length;
+
+  // Per-player summary
+  const playerSummary = data.agents
+    .filter(a => a.category === 'Jogador')
+    .map(ag => {
+      const evs = filtered.filter(ev => ev.playerId === ag.id);
+      return {
+        ...ag,
+        total: evs.length,
+        goals: evs.filter(e => e.type === 'GOAL').length,
+        shots: evs.filter(e => e.type === 'SHOT' || e.type === 'SHOT_FAIL').length,
+        passes: evs.filter(e => e.type === 'PASS' || e.type === 'PASS_FAIL').length,
+        fouls: evs.filter(e => e.type === 'FOUL').length,
+      };
+    })
+    .filter(ag => ag.total > 0 || !filterPlayer);
+
+  const handleExport = () => {
+    if (filtered.length === 0) return;
+    const headers = ['Jogo', 'Minuto', 'Parte', 'Ação', 'Tipo', 'Atleta', 'Nº', 'X%', 'Y%'];
+    const rows = filtered.map(ev => {
+      const g = data.games.find(x => x.id === ev.gameId);
+      const opp = data.opponents.find(o => o.id === g?.opponentId);
+      const half = ev.minute <= 20 ? '1ª Parte' : ev.minute <= 40 ? '2ª Parte' : 'Prorrogação';
+      return [
+        opp ? `vs ${opp.name}` : ev.gameId,
+        ev.minute,
+        half,
+        ev.actionName,
+        ev.type,
+        ev.playerName,
+        ev.playerNumber,
+        ev.posX,
+        ev.posY,
+      ];
+    });
+    const csv = "data:text/csv;charset=utf-8,"
+      + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const link = document.createElement('a');
+    link.href = encodeURI(csv);
+    link.download = 'sportluiz_registro_acoes.csv';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  };
+
+  return (
+    <div className="space-y-6 text-left">
+
+      {/* ── FILTER BAR ── */}
+      <div className="bg-neutral-950 border border-neutral-800 rounded-xl p-4 space-y-3">
+        <div className="flex items-center justify-between mb-1">
+          <span className="text-[10px] font-mono font-bold text-neutral-400 uppercase tracking-wider">
+            Filtros — Registro de Ações
+          </span>
+          <button
+            onClick={() => { setFilterGame(''); setFilterHalf(''); setFilterTeam(''); setFilterCategory(''); setFilterAction(''); setFilterPlayer(''); }}
+            className="text-[10px] font-mono text-neutral-500 hover:text-rose-400 transition-colors"
+          >
+            ✕ Limpar Filtros
+          </button>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+          {/* JOGO */}
+          <div className="flex flex-col gap-1">
+            <label className="text-[9px] font-mono text-neutral-500 uppercase font-bold">Jogo</label>
+            <select
+              value={filterGame}
+              onChange={e => setFilterGame(e.target.value)}
+              className="bg-neutral-900 border border-neutral-800 rounded-lg px-2.5 py-1.5 text-[10px] font-mono text-white focus:outline-none focus:border-emerald-500 w-full"
+            >
+              <option value="">Todos</option>
+              {data.games.map(g => {
+                const opp = data.opponents.find(o => o.id === g.opponentId);
+                return <option key={g.id} value={g.id}>vs {opp?.name || '?'} ({g.date})</option>;
+              })}
+            </select>
+          </div>
+
+          {/* PARTE */}
+          <div className="flex flex-col gap-1">
+            <label className="text-[9px] font-mono text-neutral-500 uppercase font-bold">Parte</label>
+            <select
+              value={filterHalf}
+              onChange={e => setFilterHalf(e.target.value)}
+              className="bg-neutral-900 border border-neutral-800 rounded-lg px-2.5 py-1.5 text-[10px] font-mono text-white focus:outline-none focus:border-emerald-500 w-full"
+            >
+              <option value="">Todas</option>
+              <option value="1">1ª Parte (0–20')</option>
+              <option value="2">2ª Parte (21–40')</option>
+              <option value="pe">Prorrogação (41'+)</option>
+            </select>
+          </div>
+
+          {/* EQUIPA */}
+          <div className="flex flex-col gap-1">
+            <label className="text-[9px] font-mono text-neutral-500 uppercase font-bold">Equipa</label>
+            <select
+              value={filterTeam}
+              onChange={e => setFilterTeam(e.target.value)}
+              className="bg-neutral-900 border border-neutral-800 rounded-lg px-2.5 py-1.5 text-[10px] font-mono text-white focus:outline-none focus:border-emerald-500 w-full"
+            >
+              <option value="">Ambas</option>
+              <option value="casa">Casa</option>
+              <option value="fora">Fora</option>
+            </select>
+          </div>
+
+          {/* CATEGORIA */}
+          <div className="flex flex-col gap-1">
+            <label className="text-[9px] font-mono text-neutral-500 uppercase font-bold">Categoria</label>
+            <select
+              value={filterCategory}
+              onChange={e => { setFilterCategory(e.target.value); setFilterAction(''); }}
+              className="bg-neutral-900 border border-neutral-800 rounded-lg px-2.5 py-1.5 text-[10px] font-mono text-white focus:outline-none focus:border-emerald-500 w-full"
+            >
+              <option value="">Todas</option>
+              {data.categories.map(cat => (
+                <option key={cat.id} value={cat.id}>{cat.name}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* AÇÃO */}
+          <div className="flex flex-col gap-1">
+            <label className="text-[9px] font-mono text-neutral-500 uppercase font-bold">Ação</label>
+            <select
+              value={filterAction}
+              onChange={e => setFilterAction(e.target.value)}
+              className="bg-neutral-900 border border-neutral-800 rounded-lg px-2.5 py-1.5 text-[10px] font-mono text-white focus:outline-none focus:border-emerald-500 w-full"
+            >
+              <option value="">Todas</option>
+              {actionsForCategory.map(act => (
+                <option key={act.id} value={act.id}>{act.name}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* ATLETA */}
+          <div className="flex flex-col gap-1">
+            <label className="text-[9px] font-mono text-neutral-500 uppercase font-bold">Atleta</label>
+            <select
+              value={filterPlayer}
+              onChange={e => setFilterPlayer(e.target.value)}
+              className="bg-neutral-900 border border-neutral-800 rounded-lg px-2.5 py-1.5 text-[10px] font-mono text-white focus:outline-none focus:border-emerald-500 w-full"
+            >
+              <option value="">Todos</option>
+              {data.agents.filter(a => a.category === 'Jogador').map(ag => (
+                <option key={ag.id} value={ag.id}>#{ag.number} {ag.name}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* ── KPI SUMMARY CARDS ── */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        {[
+          { label: 'Total Ações', value: totalEvents, color: 'text-white', bg: 'bg-neutral-900' },
+          { label: 'Golos', value: goalCount, color: 'text-emerald-400', bg: 'bg-emerald-950/30' },
+          { label: 'Remates', value: shotCount, color: 'text-blue-400', bg: 'bg-blue-950/30' },
+          { label: 'Passes', value: passCount, color: 'text-amber-400', bg: 'bg-amber-950/20' },
+          { label: 'Faltas', value: foulCount, color: 'text-rose-400', bg: 'bg-rose-950/20' },
+        ].map(kpi => (
+          <div key={kpi.label} className={`${kpi.bg} border border-neutral-800 rounded-xl p-4 flex flex-col items-center gap-1`}>
+            <span className={`text-2xl font-black font-mono ${kpi.color}`}>{kpi.value}</span>
+            <span className="text-[9px] font-mono text-neutral-500 uppercase font-bold tracking-wider">{kpi.label}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* ── PER-PLAYER SUMMARY TABLE ── */}
+      <div className="bg-neutral-950 border border-neutral-850 rounded-xl p-5 space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-[10px] font-mono font-bold text-neutral-400 uppercase tracking-widest">Métricas por Atleta</h3>
+        </div>
+        <div className="overflow-x-auto custom-scrollbar">
+          <table className="w-full text-left font-mono text-xs select-none">
+            <thead>
+              <tr className="border-b border-neutral-800 text-[10px] text-neutral-500 uppercase font-bold">
+                <th className="py-2.5 pr-4">Atleta</th>
+                <th className="py-2.5 text-center">Total</th>
+                <th className="py-2.5 text-center">Golos</th>
+                <th className="py-2.5 text-center">Remates</th>
+                <th className="py-2.5 text-center">Passes</th>
+                <th className="py-2.5 text-center">Faltas</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-neutral-900 text-neutral-300">
+              {playerSummary.length === 0 ? (
+                <tr><td colSpan={6} className="py-6 text-center text-[10px] text-neutral-600 font-mono">Sem eventos com os filtros selecionados.</td></tr>
+              ) : (
+                playerSummary.map(ag => (
+                  <tr key={ag.id} className="hover:bg-neutral-900/40 transition-colors">
+                    <td className="py-2.5 pr-4 font-bold text-white">
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">{ag.emoji}</span>
+                        <div>
+                          <div className="text-[11px] font-bold">{ag.name}</div>
+                          <div className="text-[9px] text-neutral-500 uppercase">{ag.position} · #{ag.number}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-2.5 text-center font-extrabold text-white">{ag.total}</td>
+                    <td className="py-2.5 text-center text-emerald-400 font-extrabold">{ag.goals}</td>
+                    <td className="py-2.5 text-center text-blue-400">{ag.shots}</td>
+                    <td className="py-2.5 text-center text-amber-400">{ag.passes}</td>
+                    <td className="py-2.5 text-center text-rose-400 font-bold">{ag.fouls}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* ── DETAILED EVENT LOG TABLE ── */}
+      <div className="bg-neutral-950 border border-neutral-850 rounded-xl p-5 space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-[10px] font-mono font-bold text-neutral-400 uppercase tracking-widest">
+            Registo Detalhado de Ações
+            <span className="ml-2 text-emerald-500 font-black">{filtered.length}</span>
+          </h3>
+          <button
+            onClick={handleExport}
+            disabled={filtered.length === 0}
+            className="flex items-center gap-1.5 text-[10px] font-mono font-bold text-neutral-400 hover:text-emerald-400 disabled:text-neutral-700 transition-colors border border-neutral-800 hover:border-emerald-500/40 px-3 py-1.5 rounded-lg"
+          >
+            ↓ Exportar CSV
+          </button>
+        </div>
+
+        <div className="overflow-x-auto custom-scrollbar">
+          <table className="w-full text-left font-mono text-[11px] select-none">
+            <thead>
+              <tr className="border-b border-neutral-800 text-[9px] text-neutral-500 uppercase font-bold">
+                <th className="py-2 pr-3">Jogo</th>
+                <th className="py-2 pr-3 text-center">Min.</th>
+                <th className="py-2 pr-3">Parte</th>
+                <th className="py-2 pr-3">Equipa</th>
+                <th className="py-2 pr-3">Categoria</th>
+                <th className="py-2 pr-3">Ação</th>
+                <th className="py-2">Atleta</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-neutral-900 text-neutral-300">
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="py-8 text-center text-[10px] text-neutral-600">
+                    Nenhum evento registado com os filtros selecionados.
+                  </td>
+                </tr>
+              ) : (
+                filtered
+                  .slice()
+                  .sort((a, b) => a.minute - b.minute)
+                  .map(ev => {
+                    const game = data.games.find(g => g.id === ev.gameId);
+                    const opp = data.opponents.find(o => o.id === game?.opponentId);
+                    const half = ev.minute <= 20 ? '1ª Parte' : ev.minute <= 40 ? '2ª Parte' : 'Prorroga.';
+                    // Find category name for this action
+                    let catName = '—';
+                    data.categories.forEach(cat => {
+                      if (cat.actions.some(a => a.name === ev.actionName || a.type === ev.type)) {
+                        catName = cat.name;
+                      }
+                    });
+                    const actionColor =
+                      ev.type === 'GOAL' ? 'text-emerald-400 font-extrabold' :
+                      ev.type === 'FOUL' ? 'text-rose-400' :
+                      ev.type === 'SHOT' || ev.type === 'SHOT_FAIL' ? 'text-blue-400' :
+                      ev.type === 'PASS' || ev.type === 'PASS_FAIL' ? 'text-amber-400' :
+                      'text-neutral-300';
+
+                    return (
+                      <tr key={ev.id} className="hover:bg-neutral-900/40 transition-colors">
+                        <td className="py-2 pr-3 text-neutral-400">
+                          {opp ? `vs ${opp.emoji} ${opp.name}` : '—'}
+                        </td>
+                        <td className="py-2 pr-3 text-center text-white font-bold">{ev.minute}'</td>
+                        <td className="py-2 pr-3">
+                          <span className="bg-neutral-900 border border-neutral-800 px-1.5 py-0.5 rounded text-[9px] text-neutral-400 font-bold">
+                            {half}
+                          </span>
+                        </td>
+                        <td className="py-2 pr-3">
+                          <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
+                            game?.homeAway === 'Casa'
+                              ? 'bg-emerald-950/40 text-emerald-400 border border-emerald-500/20'
+                              : 'bg-blue-950/40 text-blue-400 border border-blue-500/20'
+                          }`}>
+                            {game?.homeAway || '—'}
+                          </span>
+                        </td>
+                        <td className="py-2 pr-3 text-neutral-500 text-[10px]">{catName}</td>
+                        <td className={`py-2 pr-3 font-bold ${actionColor}`}>{ev.actionName}</td>
+                        <td className="py-2">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-neutral-300 font-bold">{ev.playerName}</span>
+                            {ev.playerNumber && (
+                              <span className="text-[9px] text-neutral-600 font-bold">#{ev.playerNumber}</span>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  );
+}
+
+// ============================================================
 export default function Stats() {
+
   const [activeTab, setActiveTab] = useState('configuracao');
   const [sport, setSport] = useState('futsal'); // futsal (court), football (field)
   
@@ -1166,40 +1589,7 @@ export default function Stats() {
 
         {/* --- ESTATÍSTICAS TAB --- */}
         {activeTab === 'estatisticas' && (
-          <div className="bg-neutral-950 border border-neutral-850 rounded-xl p-5 text-left">
-            <h2 className="text-xs font-bold font-mono text-neutral-300 uppercase tracking-widest mb-4">Métricas de Ação dos Atletas</h2>
-            <div className="overflow-x-auto custom-scrollbar">
-              <table className="w-full text-left font-mono text-xs select-none">
-                <thead>
-                  <tr className="border-b border-neutral-800 text-[10px] text-neutral-500 uppercase font-bold">
-                    <th className="py-2.5">Agente</th>
-                    <th className="py-2.5 text-center">Passes</th>
-                    <th className="py-2.5 text-center">Chutes</th>
-                    <th className="py-2.5 text-center">Golos</th>
-                    <th className="py-2.5 text-center">Desarmes</th>
-                    <th className="py-2.5 text-center">Faltas</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-neutral-850 text-neutral-300">
-                  {data.agents.filter(a => a.category === 'Jogador').map((ag) => {
-                    const stats = getActionStats(ag.id);
-                    return (
-                      <tr key={ag.id} className="hover:bg-neutral-900/40">
-                        <td className="py-3 font-bold text-white flex items-center gap-2">
-                          <span>{ag.emoji}</span> <span>{ag.name}</span>
-                        </td>
-                        <td className="py-3 text-center text-white">{stats.PASS}</td>
-                        <td className="py-3 text-center text-white">{stats.SHOT}</td>
-                        <td className="py-3 text-center text-emerald-400 font-extrabold">{stats.GOAL}</td>
-                        <td className="py-3 text-center text-white">{stats.INTERCEPTION}</td>
-                        <td className="py-3 text-center text-rose-400 font-bold">{stats.FOUL}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <EstatisticasTab data={data} />
         )}
 
       </div>
