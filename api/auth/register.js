@@ -1,10 +1,10 @@
-// api/auth/register.js — Vercel Serverless Function
-import { PrismaClient } from '@prisma/client';
-import jwt from 'jsonwebtoken';
+// api/auth/register.js — Vercel Serverless Function (CommonJS)
+const { PrismaClient } = require('@prisma/client');
+const jwt = require('jsonwebtoken');
 
 const prisma = new PrismaClient();
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -37,8 +37,8 @@ export default async function handler(req, res) {
     });
   } catch (err) {
     console.error('Register error:', err);
-    return res.status(500).json({ error: 'Falha ao registrar: Erro interno.' });
+    return res.status(500).json({ error: 'Falha ao registrar: ' + err.message });
   } finally {
     await prisma.$disconnect();
   }
-}
+};
