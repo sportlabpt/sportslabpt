@@ -51,8 +51,8 @@ export default function Login() {
   };
 
   const fillMockCredentials = () => {
-    setEmail('analista@sportluiz.com');
-    setPassword('senha123');
+    setEmail('admin@sportluiz.com');
+    setPassword('admin123');
   };
 
   return (
@@ -146,7 +146,7 @@ export default function Login() {
             onClick={fillMockCredentials}
             className="text-emerald-400 hover:underline cursor-pointer font-bold block"
           >
-            Preencher analista@sportluiz.com
+            Preencher admin@sportluiz.com / admin123
           </button>
         </div>
 

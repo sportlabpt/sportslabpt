@@ -23,7 +23,7 @@ const dbStore = {
     {
       id: 'mock-user-admin-id-2026',
       email: 'admin@fslsolution.com',
-      password: 'senha123',
+      password: 'admin123',
       subscriptionTier: 'ENTERPRISE',
       createdAt: new Date(),
       stripeCustomerId: null
@@ -31,7 +31,7 @@ const dbStore = {
     {
       id: 'mock-user-sportluiz-admin-id-2026',
       email: 'admin@sportluiz.com',
-      password: 'admin',
+      password: 'admin123',
       subscriptionTier: 'ENTERPRISE',
       createdAt: new Date(),
       stripeCustomerId: null
