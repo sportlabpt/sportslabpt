@@ -14,7 +14,12 @@
     "prisma:push": "prisma db push --schema=database/schema.prisma",
     "db:seed": "node database/seed.js"
   },
+  "dependencies": {
+    "@prisma/client": "^5.14.0",
+    "jsonwebtoken": "^9.0.2"
+  },
   "devDependencies": {
     "prisma": "^5.14.0"
   }
 }
+

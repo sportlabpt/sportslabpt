@@ -1,0 +1,10 @@
+{
+  "name": "sportluiz-api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@prisma/client": "^5.14.0",
+    "jsonwebtoken": "^9.0.2"
+  }
+}
