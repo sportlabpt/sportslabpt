@@ -2,8 +2,6 @@
 const { PrismaClient } = require('@prisma/client');
 const jwt = require('jsonwebtoken');
 
-const prisma = new PrismaClient();
-
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -12,11 +10,17 @@ module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Método não permitido.' });
 
-  const { email, password } = req.body;
+  // Verify env vars are loaded
+  if (!process.env.DATABASE_URL) {
+    return res.status(500).json({ error: 'DATABASE_URL não configurada no Vercel.' });
+  }
 
+  const { email, password } = req.body;
   if (!email || !password) {
     return res.status(400).json({ error: 'Email e password são obrigatórios.' });
   }
+
+  const prisma = new PrismaClient();
 
   try {
     const user = await prisma.user.findUnique({ where: { email } });
@@ -42,7 +46,10 @@ module.exports = async function handler(req, res) {
     });
   } catch (err) {
     console.error('Login error:', err);
-    return res.status(500).json({ error: 'Erro interno do servidor: ' + err.message });
+    return res.status(500).json({
+      error: 'Erro interno: ' + err.message,
+      hint: 'Verifique DATABASE_URL nas env vars do Vercel'
+    });
   } finally {
     await prisma.$disconnect();
   }
