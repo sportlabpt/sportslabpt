@@ -453,6 +453,55 @@ export default function TacticalBoard() {
 
             {/* RESTORED: Center Canvas Board & Footer */}
             <div className="lg:col-span-2 space-y-4" onPointerMove={handlePointerMove} onPointerUp={handlePointerUp}>
+              {/* NEW: Timeline Header from Print */}
+              <div className="bg-[#1e2330] p-3 rounded-xl border border-neutral-800 shadow-xl flex flex-col gap-3">
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="text-neutral-300 text-sm font-medium">Fotogramas:</span>
+                  <button onClick={addFrame} className="bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-bold px-3 py-1.5 rounded transition-colors">
+                    + Fotograma
+                  </button>
+                  <button onClick={() => removeFrame(activeFrameIndex)} className="bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-bold px-3 py-1.5 rounded transition-colors">
+                    Remover
+                  </button>
+
+                  <div className="w-px h-5 bg-neutral-700 mx-1"></div>
+
+                  <span className="text-neutral-400 text-sm">Duração (s)</span>
+                  <input type="text" defaultValue="1,5" className="bg-[#141824] border border-neutral-700 rounded px-2 py-1 text-sm text-white w-14 text-center focus:outline-none focus:border-blue-500" />
+
+                  <div className="w-px h-5 bg-neutral-700 mx-1"></div>
+
+                  <button onClick={() => setIsPlaying(!isPlaying)} className="bg-green-600 hover:bg-green-500 text-white text-xs font-bold px-4 py-1.5 rounded transition-colors flex items-center gap-2">
+                    {isPlaying ? <Pause size={14} fill="currentColor" /> : <Play size={14} fill="currentColor" />} Reproduzir
+                  </button>
+
+                  <div className="w-px h-5 bg-neutral-700 mx-1"></div>
+
+                  <button className="bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-bold px-3 py-1.5 rounded transition-colors">
+                    Exportar Imagem
+                  </button>
+                  <button className="bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-bold px-3 py-1.5 rounded transition-colors">
+                    Exportar Vídeo
+                  </button>
+                </div>
+                
+                {/* Frame list */}
+                <div className="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-1">
+                  {frames.map((_, idx) => (
+                    <button 
+                      key={idx} 
+                      onClick={() => { setActiveFrameIndex(idx); setIsPlaying(false); }} 
+                      className={`w-8 h-8 flex items-center justify-center text-sm font-bold rounded transition-all flex-shrink-0
+                        ${activeFrameIndex === idx 
+                          ? 'border-2 border-green-500 text-white bg-[#141824]' 
+                          : 'border border-neutral-700 text-neutral-400 bg-[#141824] hover:text-white hover:border-neutral-500'}`}
+                    >
+                      {idx + 1}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div className={`w-full aspect-[5/3] relative rounded-2xl border-2 border-neutral-800 overflow-hidden shadow-2xl select-none transition-all duration-300 ${courtType === 'futsal' ? 'bg-blue-950/40' : 'bg-emerald-950/20'}`}>
                 {/* Visual court markings */}
                 <div className="absolute inset-0 border-[3px] border-white/20 m-3 flex items-center justify-center pointer-events-none">
@@ -556,34 +605,7 @@ export default function TacticalBoard() {
                 </div>
               </div>
 
-              {/* RESTORED: Original Animation Cycles Footer */}
-              <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-4 flex flex-col md:flex-row justify-between items-center gap-4">
-                <div className="flex items-center gap-3">
-                  <button onClick={() => setIsPlaying(!isPlaying)} className={`p-2.5 rounded-lg border text-black font-bold transition-all cursor-pointer ${isPlaying ? 'bg-amber-400 border-amber-500 hover:bg-amber-300' : 'bg-emerald-500 border-emerald-600 hover:bg-emerald-400'}`}>
-                    {isPlaying ? <Pause size={15} /> : <Play size={15} />}
-                  </button>
-                  <div className="text-xs font-mono font-bold text-neutral-400">
-                    Frame: <span className="text-white">{activeFrameIndex + 1}</span> / <span className="text-neutral-500">{frames.length}</span>
-                  </div>
-                </div>
 
-                <div className="flex items-center gap-1.5 overflow-x-auto max-w-[280px] py-1 custom-scrollbar">
-                  {frames.map((_, idx) => (
-                    <div key={idx} className="flex-shrink-0 flex items-center gap-0.5 bg-neutral-950 p-1 rounded-md border border-neutral-850">
-                      <button onClick={() => { setActiveFrameIndex(idx); setIsPlaying(false); }} className={`px-2.5 py-1 text-[10px] font-mono font-bold rounded transition-all cursor-pointer ${activeFrameIndex === idx ? 'bg-emerald-500 text-black' : 'text-neutral-400 hover:text-white'}`}>
-                        #{idx + 1}
-                      </button>
-                      {frames.length > 1 && (
-                        <button onClick={() => removeFrame(idx)} className="text-neutral-600 hover:text-red-400 text-[9px] px-0.5">×</button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-
-                <button onClick={addFrame} className="flex items-center gap-1 bg-neutral-950 hover:bg-neutral-850 text-emerald-400 border border-neutral-850 px-3.5 py-2 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer">
-                  <Plus size={13} /> CLONAR FRAME
-                </button>
-              </div>
             </div>
 
             {/* RESTORED: Right Column Library */}
