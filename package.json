@@ -13,7 +13,8 @@
     "prisma:validate": "prisma validate --schema=database/schema.prisma",
     "prisma:generate": "prisma generate --schema=database/schema.prisma",
     "prisma:push": "prisma db push --schema=database/schema.prisma",
-    "db:seed": "node database/seed.js"
+    "db:seed": "node database/seed.js",
+    "dev": "npm run dev --prefix server & npm run dev --prefix client"
   },
   "dependencies": {
     "pg": "^8.12.0",
