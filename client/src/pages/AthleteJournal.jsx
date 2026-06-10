@@ -9,6 +9,26 @@ export default function AthleteJournal() {
   const [activeTab, setActiveTab] = useState('estatisticas');
   const [selectedPlayerId, setSelectedPlayerId] = useState('');
   
+  // Modals & Form State
+  const [isCompModalOpen, setIsCompModalOpen] = useState(false);
+  const [newComp, setNewComp] = useState('');
+  
+  const [isOppModalOpen, setIsOppModalOpen] = useState(false);
+  const [newOppName, setNewOppName] = useState('');
+  
+  const [isGameModalOpen, setIsGameModalOpen] = useState(false);
+  const [newGameDate, setNewGameDate] = useState('');
+  const [newGameOppId, setNewGameOppId] = useState('');
+  const [newGameComp, setNewGameComp] = useState('');
+  const [newGamePav, setNewGamePav] = useState('');
+
+  // Analysis / Timer State
+  const [analysisGameId, setAnalysisGameId] = useState('');
+  const [timerPeriod, setTimerPeriod] = useState('1H'); // 1H, 2H
+  const [timerSeconds, setTimerSeconds] = useState(0);
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const [refreshFlag, setRefreshFlag] = useState(0); // to force re-reading events
+  
   // Shared state with Callups.jsx and Stats.jsx
   const [data, setData] = useState({
     teamName: '',
@@ -79,6 +99,94 @@ export default function AthleteJournal() {
 
   const selectedPlayer = data.agents.find(p => p.id === selectedPlayerId);
 
+  // Create Functions
+  const handleAddComp = (e) => {
+    e.preventDefault();
+    if (!newComp.trim()) return;
+    const newData = { ...data, competitions: [...data.competitions, newComp] };
+    saveChange(newData);
+    setNewComp('');
+    setIsCompModalOpen(false);
+  };
+
+  const handleAddOpp = (e) => {
+    e.preventDefault();
+    if (!newOppName.trim()) return;
+    const newData = { ...data, opponents: [...data.opponents, { id: Date.now().toString(), name: newOppName, emoji: '🛡️' }] };
+    saveChange(newData);
+    setNewOppName('');
+    setIsOppModalOpen(false);
+  };
+
+  const handleAddGame = (e) => {
+    e.preventDefault();
+    if (!newGameDate || !newGameOppId || !newGameComp) return;
+    const newData = { 
+      ...data, 
+      games: [...data.games, { 
+        id: Date.now().toString(), 
+        opponentId: newGameOppId, 
+        competition: newGameComp, 
+        date: newGameDate, 
+        pavilion: newGamePav || 'Arena' 
+      }] 
+    };
+    saveChange(newData);
+    setNewGameDate('');
+    setNewGameOppId('');
+    setNewGameComp('');
+    setNewGamePav('');
+    setIsGameModalOpen(false);
+  };
+
+  // Timer Logic
+  useEffect(() => {
+    let interval;
+    if (isTimerRunning) {
+      interval = setInterval(() => {
+        setTimerSeconds(prev => prev + 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isTimerRunning]);
+
+  const formatTime = (secs) => {
+    const m = Math.floor(secs / 60).toString().padStart(2, '0');
+    const s = (secs % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  };
+
+  const handleRecordAction = (action) => {
+    if (!analysisGameId) {
+      alert("Selecione um jogo para iniciar a análise.");
+      return;
+    }
+    if (!selectedPlayerId) {
+      alert("Selecione o atleta.");
+      return;
+    }
+
+    const m = Math.floor(timerSeconds / 60);
+    const newEvent = {
+      id: Date.now().toString(),
+      playerId: selectedPlayerId,
+      actionId: action.id,
+      actionName: action.name,
+      minute: m,
+      period: timerPeriod,
+      posX: 50, // Default simplified
+      posY: 50,
+      timestamp: Date.now()
+    };
+
+    const key = `sportluiz_events_${analysisGameId}`;
+    const existing = JSON.parse(localStorage.getItem(key)) || [];
+    existing.push(newEvent);
+    localStorage.setItem(key, JSON.stringify(existing));
+    
+    setRefreshFlag(prev => prev + 1);
+  };
+
   // Retrieve all events for selected athlete
   const getAllPlayerEvents = () => {
     if (!selectedPlayerId) return [];
@@ -104,7 +212,10 @@ export default function AthleteJournal() {
     return playerEvents;
   };
 
-  const allPlayerEvents = getAllPlayerEvents();
+  const allPlayerEvents = getAllPlayerEvents(); // Recalculates on render, influenced by refreshFlag
+
+  // Filter out events of the currently selected Analysis Game to show its timeline
+  const analysisGameEvents = allPlayerEvents.filter(ev => ev.gameId === analysisGameId).sort((a,b) => b.timestamp - a.timestamp);
 
   // Apply filters to events
   const getFilteredEvents = () => {
@@ -364,33 +475,55 @@ export default function AthleteJournal() {
 
         {/* --- CONFIGURAÇÃO TAB --- */}
         {activeTab === 'configuracao' && (
-          <div className="bg-neutral-950 border border-neutral-850 rounded-xl p-5 text-left space-y-4">
-            <h2 className="text-xs font-bold font-mono text-neutral-400 uppercase tracking-widest">Informação do Atleta</h2>
+          <div className="bg-neutral-950 border border-neutral-850 rounded-xl p-5 text-left space-y-6">
             
-            {selectedPlayer ? (
-              <div className="space-y-4 max-w-md">
-                <div>
-                  <span className="text-[10px] font-mono text-neutral-500 uppercase block">Função / Posição Tática</span>
-                  <div className="text-white text-xs font-mono font-bold mt-1 bg-neutral-900 p-2.5 rounded border border-neutral-800">
-                    {selectedPlayer.position}
+            {/* Clube Representado */}
+            <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-4">
+              <label className="text-[10px] font-mono text-neutral-500 uppercase font-bold block mb-2">Clube que represento</label>
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">🏛️</span>
+                <input 
+                  type="text" 
+                  value={data.teamName} 
+                  onChange={e => saveChange({ ...data, teamName: e.target.value })} 
+                  placeholder="Nome do clube" 
+                  className="flex-1 bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+            </div>
+
+            <div>
+              <h2 className="text-xs font-bold font-mono text-neutral-400 uppercase tracking-widest mb-4">Informação do Atleta</h2>
+              {selectedPlayer ? (
+                <div className="space-y-4 max-w-md">
+                  <div>
+                    <span className="text-[10px] font-mono text-neutral-500 uppercase block">Função / Posição Tática</span>
+                    <div className="text-white text-xs font-mono font-bold mt-1 bg-neutral-900 p-2.5 rounded border border-neutral-800">
+                      {selectedPlayer.position}
+                    </div>
+                  </div>
+
+                  <div className="bg-neutral-900/60 p-4 rounded-xl border border-neutral-850 text-xs font-mono text-neutral-400 space-y-2">
+                    <div className="flex justify-between"><span>Categoria de Agente:</span> <span className="text-white">{selectedPlayer.category}</span></div>
+                    <div className="flex justify-between"><span>Ícone Padrão:</span> <span className="text-emerald-400 font-bold">{selectedPlayer.emoji}</span></div>
                   </div>
                 </div>
-
-                <div className="bg-neutral-900/60 p-4 rounded-xl border border-neutral-850 text-xs font-mono text-neutral-400 space-y-2">
-                  <div className="flex justify-between"><span>Categoria de Agente:</span> <span className="text-white">{selectedPlayer.category}</span></div>
-                  <div className="flex justify-between"><span>Ícone Padrão:</span> <span className="text-emerald-400 font-bold">{selectedPlayer.emoji}</span></div>
-                </div>
-              </div>
-            ) : (
-              <span className="text-xs font-mono text-neutral-500">Nenhum jogador selecionado.</span>
-            )}
+              ) : (
+                <span className="text-xs font-mono text-neutral-500">Nenhum jogador selecionado.</span>
+              )}
+            </div>
           </div>
         )}
 
         {/* --- COMPETIÇÕES TAB --- */}
         {activeTab === 'competicoes' && (
           <div className="bg-neutral-950 border border-neutral-850 rounded-xl p-5 text-left">
-            <h2 className="text-xs font-bold font-mono text-neutral-400 uppercase tracking-widest mb-4">Competições da Temporada</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xs font-bold font-mono text-neutral-400 uppercase tracking-widest">Competições da Temporada</h2>
+              <button onClick={() => setIsCompModalOpen(true)} className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1">
+                <Plus size={14} /> Nova Competição
+              </button>
+            </div>
             <div className="space-y-2">
               {data.competitions.map((comp) => (
                 <div key={comp} className="bg-neutral-900 px-4 py-2.5 rounded border border-neutral-800 text-xs font-mono">
@@ -404,7 +537,12 @@ export default function AthleteJournal() {
         {/* --- ADVERSÁRIOS TAB --- */}
         {activeTab === 'adversarios' && (
           <div className="bg-neutral-950 border border-neutral-850 rounded-xl p-5 text-left">
-            <h2 className="text-xs font-bold font-mono text-neutral-400 uppercase tracking-widest mb-4">Rivais do Clube</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xs font-bold font-mono text-neutral-400 uppercase tracking-widest">Rivais do Clube</h2>
+              <button onClick={() => setIsOppModalOpen(true)} className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1">
+                <Plus size={14} /> Novo Adversário
+              </button>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {data.opponents.map((o) => (
                 <div key={o.id} className="bg-neutral-900 p-3 rounded-lg border border-neutral-800 flex items-center gap-2">
@@ -418,7 +556,12 @@ export default function AthleteJournal() {
         {/* --- JOGOS TAB --- */}
         {activeTab === 'jogos' && (
           <div className="bg-neutral-950 border border-neutral-850 rounded-xl p-5 text-left">
-            <h2 className="text-xs font-bold font-mono text-neutral-400 uppercase tracking-widest mb-4">Calendário de Jogos</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xs font-bold font-mono text-neutral-400 uppercase tracking-widest">Calendário de Jogos</h2>
+              <button onClick={() => setIsGameModalOpen(true)} className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1">
+                <Plus size={14} /> Novo Jogo
+              </button>
+            </div>
             <div className="space-y-2">
               {data.games.map((g) => {
                 const opp = data.opponents.find(o => o.id === g.opponentId);
@@ -436,33 +579,197 @@ export default function AthleteJournal() {
           </div>
         )}
 
-        {/* --- ANÁLISE TAB --- */}
+        {/* --- ANÁLISE TAB (GRAVADOR DE JOGO) --- */}
         {activeTab === 'analise' && (
-          <div className="bg-neutral-950 border border-neutral-850 rounded-xl p-5 text-left">
-            <h2 className="text-xs font-bold font-mono text-neutral-400 uppercase tracking-widest mb-4">Log Analítico do Atleta</h2>
-            <div className="space-y-2 max-h-[300px] overflow-y-auto custom-scrollbar">
-              {allPlayerEvents.length === 0 ? (
-                <div className="text-center py-8 text-neutral-500 text-xs font-mono">Sem dados registrados.</div>
-              ) : (
-                allPlayerEvents.map((ev) => {
-                  const game = data.games.find(g => g.id === ev.gameId);
-                  const opponent = data.opponents.find(o => o.id === game?.opponentId);
-                  return (
-                    <div key={ev.id} className="bg-neutral-900 p-3 rounded border border-neutral-800 text-xs font-mono flex justify-between">
-                      <div>
-                        <span className="text-emerald-400 font-bold">[{ev.actionName}]</span>
-                        <span className="text-neutral-500 ml-1.5">vs {opponent?.name} ({game?.date})</span>
-                      </div>
-                      <span className="text-neutral-400">{ev.minute}'</span>
-                    </div>
-                  );
-                })
-              )}
+          <div className="bg-neutral-950 border border-neutral-850 rounded-xl p-5 text-left space-y-6">
+            
+            {/* Seletor de Jogo e Timer */}
+            <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+                {/* Selector */}
+                <div>
+                  <label className="text-[10px] font-mono text-neutral-500 uppercase font-bold block mb-1">Selecionar Jogo</label>
+                  <select
+                    value={analysisGameId}
+                    onChange={(e) => setAnalysisGameId(e.target.value)}
+                    className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500"
+                  >
+                    <option value="">— Selecione um jogo —</option>
+                    {data.games.map(g => {
+                      const opp = data.opponents.find(o => o.id === g.opponentId);
+                      return <option key={g.id} value={g.id}>vs {opp?.name} ({g.date})</option>;
+                    })}
+                  </select>
+                </div>
+
+                {/* Timer Controls */}
+                <div className="flex items-center gap-4 bg-neutral-950 border border-neutral-800 p-3 rounded-lg flex-wrap">
+                  <div className="flex flex-col">
+                    <span className="text-[10px] text-neutral-500 uppercase font-bold">Parte</span>
+                    <select 
+                      value={timerPeriod} 
+                      onChange={e => setTimerPeriod(e.target.value)}
+                      className="bg-neutral-900 border border-neutral-800 text-white text-xs px-2 py-1 rounded outline-none"
+                    >
+                      <option value="1H">1ª Parte</option>
+                      <option value="2H">2ª Parte</option>
+                      <option value="Prol">Prolongamento</option>
+                    </select>
+                  </div>
+                  
+                  <div className="flex-1 text-center font-mono text-3xl font-black text-white tracking-widest">
+                    {formatTime(timerSeconds)}
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button onClick={() => setIsTimerRunning(!isTimerRunning)} className={`w-10 h-10 rounded-full flex items-center justify-center text-white ${isTimerRunning ? 'bg-amber-500' : 'bg-emerald-500'}`}>
+                      {isTimerRunning ? <span className="font-bold">||</span> : <span className="font-bold">▶</span>}
+                    </button>
+                    <button onClick={() => { setIsTimerRunning(false); setTimerSeconds(0); }} className="w-10 h-10 rounded-full flex items-center justify-center text-neutral-400 border border-neutral-700 hover:bg-neutral-800">
+                      ⟲
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
+
+            {/* Ações Recorder Grid */}
+            {analysisGameId && (
+              <div className="space-y-4 border-b border-neutral-800 pb-6">
+                <h3 className="text-[10px] text-neutral-500 uppercase font-bold tracking-widest">Registo de Ações (Clique para gravar com tempo atual)</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                  {data.categories.flatMap(cat => 
+                    cat.actions.map(act => (
+                      <button 
+                        key={act.id} 
+                        onClick={() => handleRecordAction(act)}
+                        className="bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 px-3 py-3 rounded-lg text-xs font-mono font-bold text-white text-left transition-colors flex flex-col gap-1 active:scale-95"
+                      >
+                        <span className="text-[9px] text-neutral-500">{cat.name}</span>
+                        <span>{act.name}</span>
+                      </button>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Timeline Histórico */}
+            {analysisGameId && (
+              <div>
+                <h3 className="text-[10px] text-neutral-500 uppercase font-bold tracking-widest mb-3">Timeline do Jogo Selecionado</h3>
+                <div className="space-y-2 max-h-[300px] overflow-y-auto custom-scrollbar">
+                  {analysisGameEvents.length === 0 ? (
+                    <div className="text-center py-8 text-neutral-500 text-xs font-mono">Sem dados registrados.</div>
+                  ) : (
+                    analysisGameEvents.map((ev) => (
+                      <div key={ev.id} className="bg-neutral-900 p-3 rounded border border-neutral-800 text-xs font-mono flex justify-between items-center">
+                        <div className="flex items-center gap-3">
+                          <span className="w-8 text-center text-[10px] bg-neutral-950 border border-neutral-800 px-1 py-0.5 rounded text-neutral-400 font-bold">
+                            {ev.minute}'
+                          </span>
+                          <div>
+                            <span className="text-emerald-400 font-bold">{ev.actionName}</span>
+                            <span className="text-neutral-500 text-[10px] ml-2">({ev.period})</span>
+                          </div>
+                        </div>
+                        <button 
+                          onClick={() => {
+                            const key = `sportluiz_events_${analysisGameId}`;
+                            let existing = JSON.parse(localStorage.getItem(key)) || [];
+                            existing = existing.filter(e => e.id !== ev.id);
+                            localStorage.setItem(key, JSON.stringify(existing));
+                            setRefreshFlag(prev => prev + 1);
+                          }}
+                          className="text-neutral-600 hover:text-red-500"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+
           </div>
         )}
 
       </div>
+
+      {/* --- MODALS --- */}
+      {isCompModalOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-neutral-900 rounded-2xl shadow-2xl w-full max-w-sm p-6 border border-neutral-800">
+            <h2 className="text-lg font-bold text-white mb-4">Nova Competição</h2>
+            <form onSubmit={handleAddComp}>
+              <div className="mb-4">
+                <label className="block text-xs text-neutral-400 mb-1">Nome</label>
+                <input type="text" autoFocus value={newComp} onChange={e => setNewComp(e.target.value)} className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500" required />
+              </div>
+              <div className="flex gap-3">
+                <button type="button" onClick={() => setIsCompModalOpen(false)} className="flex-1 px-4 py-2 border border-neutral-700 rounded-lg text-sm text-neutral-300 hover:bg-neutral-800">Cancelar</button>
+                <button type="submit" className="flex-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-sm font-bold">Guardar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {isOppModalOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-neutral-900 rounded-2xl shadow-2xl w-full max-w-sm p-6 border border-neutral-800">
+            <h2 className="text-lg font-bold text-white mb-4">Novo Adversário</h2>
+            <form onSubmit={handleAddOpp}>
+              <div className="mb-4">
+                <label className="block text-xs text-neutral-400 mb-1">Nome da Equipa</label>
+                <input type="text" autoFocus value={newOppName} onChange={e => setNewOppName(e.target.value)} className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500" required />
+              </div>
+              <div className="flex gap-3">
+                <button type="button" onClick={() => setIsOppModalOpen(false)} className="flex-1 px-4 py-2 border border-neutral-700 rounded-lg text-sm text-neutral-300 hover:bg-neutral-800">Cancelar</button>
+                <button type="submit" className="flex-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-sm font-bold">Guardar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {isGameModalOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-neutral-900 rounded-2xl shadow-2xl w-full max-w-sm p-6 border border-neutral-800 max-h-[90vh] overflow-y-auto">
+            <h2 className="text-lg font-bold text-white mb-4">Novo Jogo</h2>
+            <form onSubmit={handleAddGame} className="space-y-4">
+              <div>
+                <label className="block text-xs text-neutral-400 mb-1">Adversário</label>
+                <select value={newGameOppId} onChange={e => setNewGameOppId(e.target.value)} className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500" required>
+                  <option value="">— Selecione —</option>
+                  {data.opponents.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs text-neutral-400 mb-1">Competição</label>
+                <select value={newGameComp} onChange={e => setNewGameComp(e.target.value)} className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500" required>
+                  <option value="">— Selecione —</option>
+                  {data.competitions.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs text-neutral-400 mb-1">Data</label>
+                <input type="date" value={newGameDate} onChange={e => setNewGameDate(e.target.value)} className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500" required />
+              </div>
+              <div>
+                <label className="block text-xs text-neutral-400 mb-1">Pavilhão</label>
+                <input type="text" placeholder="Ex: Arena Principal" value={newGamePav} onChange={e => setNewGamePav(e.target.value)} className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500" />
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button type="button" onClick={() => setIsGameModalOpen(false)} className="flex-1 px-4 py-2 border border-neutral-700 rounded-lg text-sm text-neutral-300 hover:bg-neutral-800">Cancelar</button>
+                <button type="submit" className="flex-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-sm font-bold">Guardar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
