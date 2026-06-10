@@ -2,7 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   Play, Pause, Plus, Trash2, Save, Download, 
   Settings, BookOpen, PenTool, Image as ImageIcon,
-  Search, Filter
+  Search, Filter, MousePointer, User, Users, Clock,
+  Triangle, Square, ArrowUpRight, Minus, MoreHorizontal,
+  ArrowLeft, ArrowRight, Type
 } from 'lucide-react';
 import html2pdf from 'html2pdf.js';
 
@@ -474,6 +476,84 @@ export default function TacticalBoard() {
                 {currentFrame?.cones.map((c) => (
                   <div key={c.id} onPointerDown={(e) => handlePointerDown('cone', c.id, e)} style={{ left: `${c.x}%`, top: `${c.y}%` }} className="absolute w-5 h-5 -ml-2.5 -mt-2.5 text-lg flex items-center justify-center cursor-grab active:cursor-grabbing select-none z-20" title="Cone">⚠️</div>
                 ))}
+              </div>
+
+              {/* NEW: Horizontal Toolbar from Print */}
+              <div className="bg-[#1e2330] p-3 flex flex-col gap-3 rounded-xl border border-neutral-800 shadow-xl">
+                {/* Row 1 */}
+                <div className="flex flex-wrap items-center gap-4 text-white">
+                  <div className="flex items-center gap-3">
+                    <button className="text-neutral-400 hover:text-white"><MousePointer size={16}/></button>
+                    <button className="text-neutral-400 hover:text-white"><User size={16}/></button>
+                    <button className="text-neutral-400 hover:text-white"><Users size={16}/></button>
+                    <button className="text-neutral-400 hover:text-white"><Clock size={16}/></button>
+                    <button className="text-orange-500 hover:text-orange-400"><Triangle size={16}/></button>
+                    <button className="text-neutral-400 hover:text-white"><Square size={16}/></button>
+                  </div>
+                  
+                  <div className="w-px h-5 bg-neutral-700"></div>
+
+                  <div className="flex items-center gap-1.5">
+                    <button className="bg-blue-600 p-1.5 rounded hover:bg-blue-500"><ArrowUpRight size={16}/></button>
+                    <button className="bg-blue-600 p-1.5 rounded hover:bg-blue-500"><Minus size={16}/></button>
+                    <button className="text-neutral-400 hover:text-white p-1.5"><MoreHorizontal size={16}/></button>
+                  </div>
+
+                  <div className="w-px h-5 bg-neutral-700"></div>
+
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-1">
+                      <span className="text-xs text-neutral-500 mr-1 font-mono">S:</span>
+                      <button className="bg-blue-600 p-1.5 rounded hover:bg-blue-500"><Minus size={16}/></button>
+                      <button className="text-neutral-400 hover:text-white p-1.5"><ArrowLeft size={16}/></button>
+                      <button className="text-neutral-400 hover:text-white p-1.5"><MoreHorizontal size={16} className="rotate-90"/></button>
+                    </div>
+                    
+                    <div className="flex items-center gap-1">
+                      <span className="text-xs text-neutral-500 mr-1 font-mono">E:</span>
+                      <button className="text-neutral-400 hover:text-white p-1.5"><Minus size={16}/></button>
+                      <button className="bg-blue-600 p-1.5 rounded hover:bg-blue-500"><ArrowRight size={16}/></button>
+                      <button className="text-neutral-400 hover:text-white p-1.5"><MoreHorizontal size={16} className="rotate-90"/></button>
+                    </div>
+                  </div>
+
+                  <div className="w-px h-5 bg-neutral-700"></div>
+
+                  <button className="text-neutral-400 hover:text-white"><Type size={16}/></button>
+
+                  <div className="w-px h-5 bg-neutral-700"></div>
+
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-neutral-400 font-mono">Campo</span>
+                      <div className="w-5 h-5 bg-blue-500 rounded border border-neutral-600 cursor-pointer"></div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-neutral-400 font-mono">Linhas</span>
+                      <div className="w-5 h-5 bg-white rounded border border-neutral-600 cursor-pointer"></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Row 2 */}
+                <div className="flex items-center gap-4">
+                  <button className="bg-neutral-800 hover:bg-neutral-700 text-white text-xs font-bold px-3 py-1.5 rounded border border-neutral-700 transition-colors">
+                    Meio Campo
+                  </button>
+                  <div className="w-px h-4 bg-neutral-800"></div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-neutral-400 font-mono">Cor</span>
+                    <div className="w-5 h-5 bg-white rounded border border-neutral-600 cursor-pointer"></div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-neutral-400 font-mono">Etiqueta</span>
+                    <input type="text" placeholder="Nº ou texto" className="bg-[#141824] border border-neutral-700 rounded px-2 py-1 text-xs text-white w-24 focus:outline-none focus:border-blue-500 placeholder-neutral-600" />
+                  </div>
+                  <div className="w-px h-4 bg-neutral-800 mx-2"></div>
+                  <button onClick={clearCanvas} className="bg-red-950/40 text-red-400 text-xs font-bold px-3 py-1.5 rounded border border-red-900/50 hover:bg-red-900/50 transition-colors">
+                    Apagar Seleção
+                  </button>
+                </div>
               </div>
 
               {/* RESTORED: Original Animation Cycles Footer */}
