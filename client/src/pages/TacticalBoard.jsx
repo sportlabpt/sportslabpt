@@ -454,30 +454,30 @@ export default function TacticalBoard() {
             {/* RESTORED: Center Canvas Board & Footer */}
             <div className="lg:col-span-2 space-y-4" onPointerMove={handlePointerMove} onPointerUp={handlePointerUp}>
               {/* NEW: Timeline Header from Print */}
-              <div className="bg-[#1e2330] py-3 px-5 rounded-xl border border-neutral-800 shadow-xl flex items-center gap-4 overflow-x-auto custom-scrollbar">
-                <span className="text-white text-sm font-bold whitespace-nowrap">Fotogramas:</span>
+              <div className="bg-[#1e2330] py-2.5 px-3 sm:px-4 rounded-xl border border-neutral-800 shadow-xl flex items-center gap-2 sm:gap-3 overflow-x-auto custom-scrollbar">
+                <span className="text-white text-xs font-bold whitespace-nowrap">Fotogramas:</span>
                 
-                <div className="flex items-center gap-2">
-                  <button onClick={addFrame} className="bg-[#2a303c] border border-neutral-700 hover:border-neutral-500 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors flex flex-col items-center justify-center leading-tight h-12 min-w-[90px] shrink-0">
-                    <span className="text-sm">+</span>
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <button onClick={addFrame} className="bg-[#2a303c] border border-neutral-700 hover:border-neutral-500 text-white text-[11px] sm:text-xs font-bold px-3 py-1.5 rounded-lg transition-colors flex flex-col items-center justify-center leading-tight h-10 sm:h-11 min-w-[75px] sm:min-w-[80px] shrink-0">
+                    <span className="text-xs sm:text-sm">+</span>
                     <span>Fotograma</span>
                   </button>
-                  <button onClick={() => removeFrame(activeFrameIndex)} className="bg-[#2a303c] border border-neutral-700 hover:border-neutral-500 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors h-10 shrink-0">
+                  <button onClick={() => removeFrame(activeFrameIndex)} className="bg-[#2a303c] border border-neutral-700 hover:border-neutral-500 text-white text-[11px] sm:text-xs font-bold px-3 py-1.5 rounded-lg transition-colors h-9 sm:h-10 shrink-0">
                     Remover
                   </button>
                 </div>
 
-                <div className="w-px h-8 bg-neutral-700/50 shrink-0 mx-1"></div>
+                <div className="w-px h-6 sm:h-8 bg-neutral-700/50 shrink-0 mx-0.5 sm:mx-1"></div>
 
-                <div className="flex items-center gap-3 shrink-0">
-                  <span className="text-neutral-400 text-sm">Duração</span>
-                  <input type="text" defaultValue="1,5" className="bg-[#141824] border border-neutral-700 rounded-lg px-2 py-2 text-sm text-white w-14 text-center focus:outline-none focus:border-blue-500 h-10" />
+                <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                  <span className="text-neutral-400 text-[11px] sm:text-xs">Duração</span>
+                  <input type="text" defaultValue="1,5" className="bg-[#141824] border border-neutral-700 rounded-lg px-2 py-1.5 text-[11px] sm:text-xs text-white w-10 sm:w-12 text-center focus:outline-none focus:border-blue-500 h-9 sm:h-10" />
                 </div>
 
-                <div className="w-px h-8 bg-neutral-700/50 shrink-0 mx-1"></div>
+                <div className="w-px h-6 sm:h-8 bg-neutral-700/50 shrink-0 mx-0.5 sm:mx-1"></div>
 
-                <button onClick={() => setIsPlaying(!isPlaying)} className="bg-[#1dae4c] hover:bg-green-500 text-white text-sm font-bold px-6 py-2 rounded-lg transition-colors flex items-center justify-center gap-2 h-10 shrink-0">
-                  {isPlaying ? <Pause size={16} fill="currentColor" /> : <Play size={16} fill="currentColor" />} Reproduzir
+                <button onClick={() => setIsPlaying(!isPlaying)} className="bg-[#1dae4c] hover:bg-green-500 text-white text-[11px] sm:text-xs font-bold px-4 sm:px-5 py-1.5 rounded-lg transition-colors flex items-center justify-center gap-1.5 h-9 sm:h-10 shrink-0">
+                  {isPlaying ? <Pause size={14} fill="currentColor" /> : <Play size={14} fill="currentColor" />} Reproduzir
                 </button>
               </div>
 
