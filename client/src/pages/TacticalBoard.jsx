@@ -454,54 +454,33 @@ export default function TacticalBoard() {
             {/* RESTORED: Center Canvas Board & Footer */}
             <div className="lg:col-span-2 space-y-4" onPointerMove={handlePointerMove} onPointerUp={handlePointerUp}>
               {/* NEW: Timeline Header from Print */}
-              <div className="bg-[#1e2330] py-2.5 px-3 rounded-xl border border-neutral-800 shadow-xl flex flex-col gap-3">
-                <div className="flex flex-wrap items-center justify-between gap-y-2">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-neutral-300 text-xs font-medium whitespace-nowrap">Fotogramas:</span>
-                    <button onClick={addFrame} className="bg-[#2a303c] hover:bg-[#343b49] border border-neutral-700 text-white text-[11px] font-bold px-2.5 py-1.5 rounded transition-colors whitespace-nowrap">
-                      + Fotograma
-                    </button>
-                    <button onClick={() => removeFrame(activeFrameIndex)} className="bg-[#2a303c] hover:bg-[#343b49] border border-neutral-700 text-white text-[11px] font-bold px-2.5 py-1.5 rounded transition-colors whitespace-nowrap">
-                      Remover
-                    </button>
-
-                    <div className="w-px h-4 bg-neutral-700 mx-0.5 shrink-0"></div>
-
-                    <span className="text-neutral-400 text-xs whitespace-nowrap">Duração (s)</span>
-                    <input type="text" defaultValue="1,5" className="bg-[#141824] border border-neutral-700 rounded px-1.5 py-1 text-xs text-white w-10 text-center focus:outline-none focus:border-blue-500 shrink-0" />
-
-                    <div className="w-px h-4 bg-neutral-700 mx-0.5 shrink-0"></div>
-
-                    <button onClick={() => setIsPlaying(!isPlaying)} className="bg-green-600 hover:bg-green-500 text-white text-[11px] font-bold px-3 py-1.5 rounded transition-colors flex items-center gap-1.5 whitespace-nowrap">
-                      {isPlaying ? <Pause size={12} fill="currentColor" /> : <Play size={12} fill="currentColor" />} Reproduzir
-                    </button>
-                  </div>
-
-                  <div className="flex items-center gap-1.5 mt-1 sm:mt-0">
-                    <button className="bg-[#2a303c] hover:bg-[#343b49] border border-neutral-700 text-white text-[11px] font-bold px-2 py-1.5 rounded transition-colors whitespace-nowrap">
-                      Exportar Imagem
-                    </button>
-                    <button className="bg-[#2a303c] hover:bg-[#343b49] border border-neutral-700 text-white text-[11px] font-bold px-2 py-1.5 rounded transition-colors whitespace-nowrap">
-                      Exportar Vídeo
-                    </button>
-                  </div>
-                </div>
+              <div className="bg-[#1e2330] py-3 px-5 rounded-xl border border-neutral-800 shadow-xl flex flex-wrap items-center gap-5">
+                <span className="text-neutral-300 text-sm font-medium whitespace-nowrap">Fotogramas:</span>
                 
-                {/* Frame list */}
-                <div className="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-1">
-                  {frames.map((_, idx) => (
-                    <button 
-                      key={idx} 
-                      onClick={() => { setActiveFrameIndex(idx); setIsPlaying(false); }} 
-                      className={`w-8 h-8 flex items-center justify-center text-sm font-bold rounded transition-all flex-shrink-0
-                        ${activeFrameIndex === idx 
-                          ? 'border-2 border-green-500 text-white bg-[#141824]' 
-                          : 'border border-neutral-700 text-neutral-400 bg-[#141824] hover:text-white hover:border-neutral-500'}`}
-                    >
-                      {idx + 1}
-                    </button>
-                  ))}
+                <button onClick={addFrame} className="bg-[#2a303c] hover:bg-[#343b49] border border-neutral-700 text-white text-[11px] font-bold px-4 py-1.5 rounded transition-colors flex flex-col items-center leading-tight">
+                  <span className="text-sm">+</span>
+                  <span>Fotograma</span>
+                </button>
+                
+                <button onClick={() => removeFrame(activeFrameIndex)} className="bg-[#2a303c] hover:bg-[#343b49] border border-neutral-700 text-white text-[11px] font-bold px-4 py-3 rounded transition-colors whitespace-nowrap">
+                  Remover
+                </button>
+
+                <div className="w-px h-6 bg-neutral-700 mx-1 shrink-0 hidden sm:block"></div>
+
+                <div className="flex items-center gap-3">
+                  <div className="flex flex-col text-neutral-400 text-[11px] leading-tight text-right">
+                    <span>Duração</span>
+                    <span>(s)</span>
+                  </div>
+                  <input type="text" defaultValue="1,5" className="bg-[#141824] border border-neutral-700 rounded px-1.5 py-1.5 text-sm text-white w-14 text-center focus:outline-none focus:border-blue-500 shrink-0" />
                 </div>
+
+                <div className="w-px h-6 bg-neutral-700 mx-1 shrink-0 hidden sm:block"></div>
+
+                <button onClick={() => setIsPlaying(!isPlaying)} className="bg-emerald-500 hover:bg-emerald-400 text-black text-[13px] font-bold px-5 py-2.5 rounded transition-colors flex items-center gap-2 whitespace-nowrap">
+                  {isPlaying ? <Pause size={14} fill="currentColor" /> : <Play size={14} fill="currentColor" />} Reproduzir
+                </button>
               </div>
 
               <div className={`w-full aspect-[5/3] relative rounded-2xl border-2 border-neutral-800 overflow-hidden shadow-2xl select-none transition-all duration-300 ${courtType === 'futsal' ? 'bg-blue-950/40' : 'bg-emerald-950/20'}`}>
@@ -530,51 +509,54 @@ export default function TacticalBoard() {
               </div>
 
               {/* NEW: Horizontal Toolbar from Print */}
-              <div className="bg-[#1e2330] p-3 flex flex-col gap-3 rounded-xl border border-neutral-800 shadow-xl">
-                {/* Row 1 */}
-                <div className="flex flex-wrap items-center gap-4 text-white">
-                  <div className="flex items-center gap-3">
-                    <button className="text-neutral-400 hover:text-white"><MousePointer size={16}/></button>
-                    <button className="text-neutral-400 hover:text-white"><User size={16}/></button>
-                    <button className="text-neutral-400 hover:text-white"><Users size={16}/></button>
-                    <button className="text-neutral-400 hover:text-white"><Clock size={16}/></button>
-                    <button className="text-orange-500 hover:text-orange-400"><Triangle size={16}/></button>
-                    <button className="text-neutral-400 hover:text-white"><Square size={16}/></button>
-                  </div>
-                  
-                  <div className="w-px h-5 bg-neutral-700"></div>
-
-                  <div className="flex items-center gap-1.5">
-                    <button className="bg-blue-600 p-1.5 rounded hover:bg-blue-500"><ArrowUpRight size={16}/></button>
-                    <button className="bg-blue-600 p-1.5 rounded hover:bg-blue-500"><Minus size={16}/></button>
-                    <button className="text-neutral-400 hover:text-white p-1.5"><MoreHorizontal size={16}/></button>
-                  </div>
-
-                  <div className="w-px h-5 bg-neutral-700"></div>
-
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-1">
-                      <span className="text-xs text-neutral-500 mr-1 font-mono">S:</span>
-                      <button className="bg-blue-600 p-1.5 rounded hover:bg-blue-500"><Minus size={16}/></button>
-                      <button className="text-neutral-400 hover:text-white p-1.5"><ArrowLeft size={16}/></button>
-                      <button className="text-neutral-400 hover:text-white p-1.5"><MoreHorizontal size={16} className="rotate-90"/></button>
+              <div className="bg-[#1e2330] p-4 flex flex-col md:flex-row justify-between items-end rounded-xl border border-neutral-800 shadow-xl gap-4">
+                
+                {/* Left Side: Drawing Tools */}
+                <div className="flex flex-col gap-5">
+                  {/* Row 1 */}
+                  <div className="flex flex-wrap items-center gap-4 text-white">
+                    <div className="flex items-center gap-3">
+                      <button className="text-neutral-400 hover:text-white"><MousePointer size={16}/></button>
+                      <button className="text-neutral-400 hover:text-white"><User size={16}/></button>
+                      <button className="text-neutral-400 hover:text-white"><Users size={16}/></button>
+                      <button className="text-neutral-400 hover:text-white"><Clock size={16}/></button>
+                      <button className="text-orange-500 hover:text-orange-400"><Triangle size={16}/></button>
+                      <button className="text-neutral-400 hover:text-white"><Square size={16}/></button>
                     </div>
                     
-                    <div className="flex items-center gap-1">
-                      <span className="text-xs text-neutral-500 mr-1 font-mono">E:</span>
-                      <button className="text-neutral-400 hover:text-white p-1.5"><Minus size={16}/></button>
-                      <button className="bg-blue-600 p-1.5 rounded hover:bg-blue-500"><ArrowRight size={16}/></button>
-                      <button className="text-neutral-400 hover:text-white p-1.5"><MoreHorizontal size={16} className="rotate-90"/></button>
+                    <div className="w-px h-5 bg-neutral-700"></div>
+
+                    <div className="flex items-center gap-1.5">
+                      <button className="bg-blue-600 p-1.5 rounded hover:bg-blue-500"><ArrowUpRight size={16}/></button>
+                      <button className="bg-blue-600 p-1.5 rounded hover:bg-blue-500"><Minus size={16}/></button>
+                      <button className="text-neutral-400 hover:text-white p-1.5"><MoreHorizontal size={16}/></button>
                     </div>
+
+                    <div className="w-px h-5 bg-neutral-700"></div>
+
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs text-neutral-500 mr-1 font-mono">S:</span>
+                        <button className="bg-blue-600 p-1.5 rounded hover:bg-blue-500"><Minus size={16}/></button>
+                        <button className="text-neutral-400 hover:text-white p-1.5"><ArrowLeft size={16}/></button>
+                        <button className="text-neutral-400 hover:text-white p-1.5"><MoreHorizontal size={16} className="rotate-90"/></button>
+                      </div>
+                      
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs text-neutral-500 mr-1 font-mono">E:</span>
+                        <button className="text-neutral-400 hover:text-white p-1.5"><Minus size={16}/></button>
+                        <button className="bg-blue-600 p-1.5 rounded hover:bg-blue-500"><ArrowRight size={16}/></button>
+                        <button className="text-neutral-400 hover:text-white p-1.5"><MoreHorizontal size={16} className="rotate-90"/></button>
+                      </div>
+                    </div>
+
+                    <div className="w-px h-5 bg-neutral-700"></div>
+
+                    <button className="text-neutral-400 hover:text-white"><Type size={16}/></button>
                   </div>
 
-                  <div className="w-px h-5 bg-neutral-700"></div>
-
-                  <button className="text-neutral-400 hover:text-white"><Type size={16}/></button>
-
-                  <div className="w-px h-5 bg-neutral-700"></div>
-
-                  <div className="flex items-center gap-4">
+                  {/* Row 2 */}
+                  <div className="flex flex-wrap items-center gap-6">
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-neutral-400 font-mono">Campo</span>
                       <div className="w-5 h-5 bg-blue-500 rounded border border-neutral-600 cursor-pointer"></div>
@@ -583,27 +565,48 @@ export default function TacticalBoard() {
                       <span className="text-xs text-neutral-400 font-mono">Linhas</span>
                       <div className="w-5 h-5 bg-white rounded border border-neutral-600 cursor-pointer"></div>
                     </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-neutral-400 font-mono">Cor</span>
+                      <div className="w-5 h-5 bg-white rounded border border-neutral-600 cursor-pointer"></div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-neutral-400 font-mono">Etiqueta</span>
+                      <input type="text" placeholder="Nº ou texto" className="bg-[#141824] border border-neutral-700 rounded px-2 py-1 text-xs text-white w-24 focus:outline-none focus:border-blue-500 placeholder-neutral-600" />
+                    </div>
+                  </div>
+
+                  {/* Row 3 */}
+                  <div className="flex items-center gap-4 mt-1">
+                    <button className="bg-neutral-800 hover:bg-neutral-700 text-white text-xs font-bold px-4 py-2 rounded border border-neutral-700 transition-colors">
+                      Meio Campo
+                    </button>
+                    <button onClick={clearCanvas} className="text-red-500 border border-red-900/30 hover:border-red-900 bg-red-950/20 text-xs font-bold px-4 py-2 rounded transition-colors hover:bg-red-950/40">
+                      Apagar Seleção
+                    </button>
                   </div>
                 </div>
 
-                {/* Row 2 */}
-                <div className="flex items-center gap-4">
-                  <button className="bg-neutral-800 hover:bg-neutral-700 text-white text-xs font-bold px-3 py-1.5 rounded border border-neutral-700 transition-colors">
-                    Meio Campo
+                {/* Right Side: Export & Frames */}
+                <div className="flex items-end gap-3 md:ml-auto">
+                  <button className="bg-[#2a303c] hover:bg-[#343b49] border border-neutral-700 text-white text-[11px] font-bold px-4 py-2 rounded transition-colors flex flex-col items-center justify-center leading-tight h-[42px]">
+                    <span>Exportar</span>
+                    <span>Imagem</span>
                   </button>
-                  <div className="w-px h-4 bg-neutral-800"></div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-neutral-400 font-mono">Cor</span>
-                    <div className="w-5 h-5 bg-white rounded border border-neutral-600 cursor-pointer"></div>
+
+                  <div className="flex items-center gap-2 overflow-x-auto custom-scrollbar h-[42px]">
+                    {frames.map((_, idx) => (
+                      <button 
+                        key={idx} 
+                        onClick={() => { setActiveFrameIndex(idx); setIsPlaying(false); }} 
+                        className={`w-[42px] h-[42px] flex items-center justify-center text-sm font-bold rounded transition-all flex-shrink-0
+                          ${activeFrameIndex === idx 
+                            ? 'border-2 border-emerald-500 text-white bg-[#141824]' 
+                            : 'border border-neutral-700 text-neutral-400 bg-[#141824] hover:text-white hover:border-neutral-500'}`}
+                      >
+                        {idx + 1}
+                      </button>
+                    ))}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-neutral-400 font-mono">Etiqueta</span>
-                    <input type="text" placeholder="Nº ou texto" className="bg-[#141824] border border-neutral-700 rounded px-2 py-1 text-xs text-white w-24 focus:outline-none focus:border-blue-500 placeholder-neutral-600" />
-                  </div>
-                  <div className="w-px h-4 bg-neutral-800 mx-2"></div>
-                  <button onClick={clearCanvas} className="bg-red-950/40 text-red-400 text-xs font-bold px-3 py-1.5 rounded border border-red-900/50 hover:bg-red-900/50 transition-colors">
-                    Apagar Seleção
-                  </button>
                 </div>
               </div>
 
