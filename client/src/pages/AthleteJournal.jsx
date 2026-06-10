@@ -22,6 +22,9 @@ export default function AthleteJournal() {
   const [newGameComp, setNewGameComp] = useState('');
   const [newGamePav, setNewGamePav] = useState('');
 
+  const [isCatModalOpen, setIsCatModalOpen] = useState(false);
+  const [isPavModalOpen, setIsPavModalOpen] = useState(false);
+
   // Analysis / Timer State
   const [analysisGameId, setAnalysisGameId] = useState('');
   const [timerPeriod, setTimerPeriod] = useState('1H'); // 1H, 2H
@@ -475,43 +478,82 @@ export default function AthleteJournal() {
 
         {/* --- CONFIGURAÇÃO TAB --- */}
         {activeTab === 'configuracao' && (
-          <div className="bg-neutral-950 border border-neutral-850 rounded-xl p-5 text-left space-y-6">
+          <div className="bg-[#1e2330] border border-neutral-800 rounded-xl p-5 text-left space-y-6">
             
             {/* Clube Representado */}
-            <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-4">
-              <label className="text-[10px] font-mono text-neutral-500 uppercase font-bold block mb-2">Clube que represento</label>
+            <div className="bg-[#1e2330] border border-neutral-800 rounded-xl p-4">
+              <label className="text-[10px] font-mono text-neutral-400 uppercase font-bold block mb-2">CLUBE QUE REPRESENTO</label>
               <div className="flex items-center gap-3">
-                <span className="text-2xl">🏛️</span>
+                <div className="w-12 h-12 bg-[#2a303c] hover:bg-neutral-700 rounded-xl flex items-center justify-center text-xl border border-neutral-700 cursor-pointer transition-colors">🏛️</div>
                 <input 
                   type="text" 
-                  value={data.teamName} 
+                  value={data.teamName || ''} 
                   onChange={e => saveChange({ ...data, teamName: e.target.value })} 
                   placeholder="Nome do clube" 
-                  className="flex-1 bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"
+                  className="flex-1 bg-transparent border border-neutral-800 hover:border-neutral-600 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500 transition-colors"
                 />
               </div>
             </div>
 
-            <div>
-              <h2 className="text-xs font-bold font-mono text-neutral-400 uppercase tracking-widest mb-4">Informação do Atleta</h2>
-              {selectedPlayer ? (
-                <div className="space-y-4 max-w-md">
-                  <div>
-                    <span className="text-[10px] font-mono text-neutral-500 uppercase block">Função / Posição Tática</span>
-                    <div className="text-white text-xs font-mono font-bold mt-1 bg-neutral-900 p-2.5 rounded border border-neutral-800">
-                      {selectedPlayer.position}
-                    </div>
-                  </div>
+            {/* Categorias & ID Atleta */}
+            <div className="flex flex-col sm:flex-row items-end gap-4 mt-6">
+              <button onClick={() => setIsCatModalOpen(true)} className="bg-[#1dae4c] hover:bg-green-500 text-white text-sm font-bold px-4 py-2.5 rounded-lg flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 transition-colors w-full sm:w-auto">
+                + Nova Categoria
+              </button>
+              
+              <div className="flex-1 w-full">
+                <label className="text-[10px] sm:text-xs text-neutral-400 block mb-1">
+                  <span className="font-bold text-neutral-300">ID Atleta</span> — ID fornecido pelo treinador para cruzar análises
+                </label>
+                <input 
+                  type="text" 
+                  placeholder="ID do atleta" 
+                  value={selectedPlayer ? selectedPlayer.id : ''}
+                  disabled
+                  className="w-full bg-[#1e2330] border border-neutral-800 rounded-lg px-4 py-2.5 text-sm text-neutral-500 focus:outline-none cursor-not-allowed"
+                />
+              </div>
+            </div>
 
-                  <div className="bg-neutral-900/60 p-4 rounded-xl border border-neutral-850 text-xs font-mono text-neutral-400 space-y-2">
-                    <div className="flex justify-between"><span>Categoria de Agente:</span> <span className="text-white">{selectedPlayer.category}</span></div>
-                    <div className="flex justify-between"><span>Ícone Padrão:</span> <span className="text-emerald-400 font-bold">{selectedPlayer.emoji}</span></div>
-                  </div>
+            {/* Categorias List */}
+            <div className="bg-[#2a303c] border border-neutral-800 rounded-xl p-8 flex flex-col items-center justify-center text-sm text-neutral-400 shadow-inner min-h-[120px]">
+              {data.categories && data.categories.length > 0 ? (
+                <div className="w-full text-left space-y-2">
+                  {data.categories.map(c => (
+                     <div key={c.id} className="bg-[#1e2330] p-3 rounded-lg border border-neutral-800 text-white font-mono flex justify-between items-center shadow-sm">
+                       <span className="font-bold">{c.name}</span>
+                       <span className="text-xs text-neutral-500">{c.actions.length} ações registradas</span>
+                     </div>
+                  ))}
                 </div>
               ) : (
-                <span className="text-xs font-mono text-neutral-500">Nenhum jogador selecionado.</span>
+                <span>Sem categorias.</span>
               )}
             </div>
+
+            {/* Pavilhões Header */}
+            <div className="flex items-center justify-between mt-8">
+              <button onClick={() => setIsPavModalOpen(true)} className="bg-[#1dae4c] hover:bg-green-500 text-white text-sm font-bold px-4 py-2.5 rounded-lg flex items-center gap-1.5 whitespace-nowrap transition-colors">
+                + Novo Pavilhão
+              </button>
+              <span className="text-sm font-bold text-white">Pavilhões</span>
+            </div>
+
+            {/* Pavilhões List */}
+            <div className="bg-[#2a303c] border border-neutral-800 rounded-xl p-8 flex items-center justify-center text-sm text-neutral-400 text-center shadow-inner min-h-[120px]">
+              {data.pavilions && data.pavilions.length > 0 ? (
+                <div className="w-full text-left space-y-2">
+                  {data.pavilions.map(p => (
+                     <div key={p.id} className="bg-[#1e2330] p-3 rounded-lg border border-neutral-800 text-white font-mono flex justify-between items-center shadow-sm">
+                       <span className="font-bold">🏟️ {p.name}</span>
+                     </div>
+                  ))}
+                </div>
+              ) : (
+                <span>Ainda não há pavilhões. Adiciona o primeiro.</span>
+              )}
+            </div>
+
           </div>
         )}
 
