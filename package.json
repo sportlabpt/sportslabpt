@@ -18,12 +18,14 @@
     "prisma:generate": "prisma generate --schema=database/schema.prisma",
     "prisma:push": "prisma db push --schema=database/schema.prisma",
     "db:seed": "node database/seed.js",
-    "dev": "npm run dev --prefix server & npm run dev --prefix client"
+    "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\""
   },
   "dependencies": {
-    "pg": "^8.12.0",
     "jsonwebtoken": "^9.0.2",
+    "pg": "^8.12.0",
     "prisma": "^5.14.0"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.3"
   }
 }
-
