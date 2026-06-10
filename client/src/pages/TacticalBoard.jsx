@@ -507,13 +507,13 @@ export default function TacticalBoard() {
               </div>
 
               {/* NEW: Horizontal Toolbar from Print */}
-              <div className="bg-[#1e2330] py-3 px-5 flex flex-row justify-between items-end rounded-xl border border-neutral-800 shadow-xl overflow-x-auto custom-scrollbar">
+              <div className="bg-[#1e2330] py-3 px-4 flex flex-wrap items-end gap-6 sm:gap-10 rounded-xl border border-neutral-800 shadow-xl">
                 
                 {/* Left Side: Drawing Tools */}
-                <div className="flex flex-col gap-3 shrink-0 mr-4">
+                <div className="flex flex-col gap-3 shrink-0">
                   {/* Row 1 */}
-                  <div className="flex items-center gap-3 text-white">
-                    <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 sm:gap-3 text-white">
+                    <div className="flex items-center gap-2 sm:gap-3">
                       <button className="text-neutral-400 hover:text-white"><MousePointer size={18}/></button>
                       <button className="text-neutral-400 hover:text-white"><User size={18}/></button>
                       <button className="text-neutral-400 hover:text-white"><Users size={18}/></button>
@@ -530,15 +530,15 @@ export default function TacticalBoard() {
                       <button className="text-neutral-400 hover:text-white p-1.5"><MoreHorizontal size={16}/></button>
                     </div>
 
-                    <div className="flex items-center gap-4 ml-1">
-                      <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-2 sm:gap-4 ml-1">
+                      <div className="flex items-center gap-1 sm:gap-1.5">
                         <span className="text-xs text-neutral-500 font-mono">S:</span>
                         <button className="bg-blue-600 p-1.5 rounded hover:bg-blue-500 text-white"><Minus size={16}/></button>
                         <button className="text-neutral-400 hover:text-white p-1.5"><ArrowLeft size={16}/></button>
                         <button className="text-neutral-400 hover:text-white p-1.5"><MoreHorizontal size={16} className="rotate-90"/></button>
                       </div>
                       
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-1 sm:gap-1.5">
                         <span className="text-xs text-neutral-500 font-mono">E:</span>
                         <button className="text-neutral-400 hover:text-white p-1.5"><Minus size={16}/></button>
                         <button className="bg-blue-600 p-1.5 rounded hover:bg-blue-500 text-white"><ArrowRight size={16}/></button>
@@ -552,23 +552,23 @@ export default function TacticalBoard() {
                   </div>
 
                   {/* Row 2 */}
-                  <div className="flex items-center gap-5 mt-1">
+                  <div className="flex items-center gap-3 sm:gap-5 mt-1">
                     <div className="w-px h-4 bg-neutral-700/50"></div>
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-neutral-400 font-mono">Campo</span>
-                      <div className="w-6 h-6 bg-blue-500 rounded border border-neutral-600 cursor-pointer"></div>
+                      <div className="w-5 h-5 sm:w-6 sm:h-6 bg-blue-500 rounded border border-neutral-600 cursor-pointer"></div>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-neutral-400 font-mono">Linhas</span>
-                      <div className="w-6 h-6 bg-white rounded border border-neutral-600 cursor-pointer"></div>
+                      <div className="w-5 h-5 sm:w-6 sm:h-6 bg-white rounded border border-neutral-600 cursor-pointer"></div>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-neutral-400 font-mono">Cor</span>
-                      <div className="w-6 h-6 bg-white rounded border border-neutral-600 cursor-pointer"></div>
+                      <div className="w-5 h-5 sm:w-6 sm:h-6 bg-white rounded border border-neutral-600 cursor-pointer"></div>
                     </div>
-                    <div className="flex items-center gap-3 ml-2">
+                    <div className="flex items-center gap-2 sm:gap-3 sm:ml-2">
                       <span className="text-xs text-neutral-400 font-mono">Etiqueta</span>
-                      <input type="text" placeholder="Nº ou texto" className="bg-[#141824] border border-neutral-700 rounded-lg px-3 py-1.5 text-xs text-white w-28 focus:outline-none focus:border-blue-500 placeholder-neutral-600" />
+                      <input type="text" placeholder="Nº ou texto" className="bg-[#141824] border border-neutral-700 rounded-lg px-2 sm:px-3 py-1.5 text-xs text-white w-24 sm:w-28 focus:outline-none focus:border-blue-500 placeholder-neutral-600" />
                     </div>
                   </div>
 
