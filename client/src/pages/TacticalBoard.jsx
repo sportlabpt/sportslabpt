@@ -507,11 +507,12 @@ export default function TacticalBoard() {
               </div>
 
               {/* NEW: Horizontal Toolbar from Print */}
-              <div className="bg-[#1e2330] py-3 px-4 flex flex-row items-end gap-6 sm:gap-8 rounded-xl border border-neutral-800 shadow-xl overflow-x-auto custom-scrollbar">
+              <div className="bg-[#1e2330] py-3 px-4 flex justify-start rounded-xl border border-neutral-800 shadow-xl overflow-x-auto custom-scrollbar w-fit">
                 
-                {/* Left Side: Drawing Tools */}
+                {/* All Tools Container */}
                 <div className="flex flex-col gap-3 shrink-0">
-                  {/* Row 1 */}
+                  
+                  {/* Row 1 (Longest) */}
                   <div className="flex items-center gap-2 sm:gap-3 text-white">
                     <div className="flex items-center gap-2 sm:gap-3">
                       <button className="text-neutral-400 hover:text-white"><MousePointer size={18}/></button>
@@ -551,59 +552,66 @@ export default function TacticalBoard() {
                     <button className="text-neutral-400 hover:text-white"><Type size={18}/></button>
                   </div>
 
-                  {/* Row 2 */}
-                  <div className="flex items-center gap-3 sm:gap-4 mt-1">
-                    <div className="w-px h-4 bg-neutral-700/50"></div>
-                    <div className="flex items-center gap-1.5 sm:gap-2">
-                      <span className="text-[11px] sm:text-xs text-neutral-400 font-mono">Campo</span>
-                      <div className="w-5 h-5 sm:w-6 sm:h-6 bg-blue-500 rounded border border-neutral-600 cursor-pointer"></div>
-                    </div>
-                    <div className="flex items-center gap-1.5 sm:gap-2">
-                      <span className="text-[11px] sm:text-xs text-neutral-400 font-mono">Linhas</span>
-                      <div className="w-5 h-5 sm:w-6 sm:h-6 bg-white rounded border border-neutral-600 cursor-pointer"></div>
-                    </div>
-                    <div className="flex items-center gap-1.5 sm:gap-2">
-                      <span className="text-[11px] sm:text-xs text-neutral-400 font-mono">Cor</span>
-                      <div className="w-5 h-5 sm:w-6 sm:h-6 bg-white rounded border border-neutral-600 cursor-pointer"></div>
-                    </div>
-                    <div className="flex items-center gap-1.5 sm:gap-2 sm:ml-2">
-                      <span className="text-[11px] sm:text-xs text-neutral-400 font-mono">Etiqueta</span>
-                      <input type="text" placeholder="Nº ou texto" className="bg-[#141824] border border-neutral-700 rounded-lg px-2 sm:px-3 py-1.5 text-xs text-white w-20 sm:w-24 focus:outline-none focus:border-blue-500 placeholder-neutral-600" />
-                    </div>
-                  </div>
+                  {/* Container for Rows 2/3 + Export Tools placed side by side */}
+                  <div className="flex items-end justify-between w-full">
+                    
+                    {/* Rows 2 and 3 Stack */}
+                    <div className="flex flex-col gap-3">
+                      {/* Row 2 */}
+                      <div className="flex items-center gap-3 sm:gap-4 mt-1">
+                        <div className="w-px h-4 bg-neutral-700/50"></div>
+                        <div className="flex items-center gap-1.5 sm:gap-2">
+                          <span className="text-[11px] sm:text-xs text-neutral-400 font-mono">Campo</span>
+                          <div className="w-5 h-5 sm:w-6 sm:h-6 bg-blue-500 rounded border border-neutral-600 cursor-pointer"></div>
+                        </div>
+                        <div className="flex items-center gap-1.5 sm:gap-2">
+                          <span className="text-[11px] sm:text-xs text-neutral-400 font-mono">Linhas</span>
+                          <div className="w-5 h-5 sm:w-6 sm:h-6 bg-white rounded border border-neutral-600 cursor-pointer"></div>
+                        </div>
+                        <div className="flex items-center gap-1.5 sm:gap-2">
+                          <span className="text-[11px] sm:text-xs text-neutral-400 font-mono">Cor</span>
+                          <div className="w-5 h-5 sm:w-6 sm:h-6 bg-white rounded border border-neutral-600 cursor-pointer"></div>
+                        </div>
+                        <div className="flex items-center gap-1.5 sm:gap-2 sm:ml-2">
+                          <span className="text-[11px] sm:text-xs text-neutral-400 font-mono">Etiqueta</span>
+                          <input type="text" placeholder="Nº ou texto" className="bg-[#141824] border border-neutral-700 rounded-lg px-2 sm:px-3 py-1.5 text-xs text-white w-20 sm:w-24 focus:outline-none focus:border-blue-500 placeholder-neutral-600" />
+                        </div>
+                      </div>
 
-                  {/* Row 3 */}
-                  <div className="flex items-center gap-4 mt-1">
-                    <button className="bg-[#141824] hover:bg-[#1e2330] text-white text-[11px] sm:text-xs font-bold px-3 sm:px-4 py-2 rounded border border-neutral-700 transition-colors">
-                      Meio Campo
-                    </button>
-                    <div className="w-px h-4 bg-neutral-700/50"></div>
-                    <button onClick={clearCanvas} className="text-[#ff5555] border border-red-900/50 bg-[#1e1414] hover:bg-[#2a1a1a] text-[11px] sm:text-xs font-bold px-3 sm:px-4 py-2 rounded transition-colors whitespace-nowrap">
-                      Apagar Seleção
-                    </button>
-                  </div>
-                </div>
+                      {/* Row 3 */}
+                      <div className="flex items-center gap-4 mt-1">
+                        <button className="bg-[#141824] hover:bg-[#1e2330] text-white text-[11px] sm:text-xs font-bold px-3 sm:px-4 py-2 rounded border border-neutral-700 transition-colors">
+                          Meio Campo
+                        </button>
+                        <div className="w-px h-4 bg-neutral-700/50"></div>
+                        <button onClick={clearCanvas} className="text-[#ff5555] border border-red-900/50 bg-[#1e1414] hover:bg-[#2a1a1a] text-[11px] sm:text-xs font-bold px-3 sm:px-4 py-2 rounded transition-colors whitespace-nowrap">
+                          Apagar Seleção
+                        </button>
+                      </div>
+                    </div>
 
-                {/* Right Side: Export & Frames */}
-                <div className="flex items-end gap-3 shrink-0 pb-0.5">
-                  <button className="bg-[#2a303c] hover:bg-[#343b49] border border-neutral-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors flex flex-col items-center justify-center leading-tight h-[52px] min-w-[80px] sm:min-w-[90px]">
-                    <span>Exportar</span>
-                    <span>Imagem</span>
-                  </button>
-
-                  <div className="flex items-center gap-2 h-[52px]">
-                    {frames.map((_, idx) => (
-                      <button 
-                        key={idx} 
-                        onClick={() => { setActiveFrameIndex(idx); setIsPlaying(false); }} 
-                        className={`w-10 h-10 flex items-center justify-center text-sm font-bold rounded transition-all flex-shrink-0
-                          ${activeFrameIndex === idx 
-                            ? 'border-2 border-[#1dae4c] text-white bg-[#141824]' 
-                            : 'border border-neutral-700 text-neutral-400 bg-[#141824] hover:text-white hover:border-neutral-500'}`}
-                      >
-                        {idx + 1}
+                    {/* Right Side: Export & Frames (Tucked under Row 1) */}
+                    <div className="flex items-end gap-3 shrink-0 pb-0.5 ml-4">
+                      <button className="bg-[#2a303c] hover:bg-[#343b49] border border-neutral-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors flex flex-col items-center justify-center leading-tight h-[52px] min-w-[80px] sm:min-w-[90px]">
+                        <span>Exportar</span>
+                        <span>Imagem</span>
                       </button>
-                    ))}
+
+                      <div className="flex items-center gap-2 h-[52px]">
+                        {frames.map((_, idx) => (
+                          <button 
+                            key={idx} 
+                            onClick={() => { setActiveFrameIndex(idx); setIsPlaying(false); }} 
+                            className={`w-10 h-10 flex items-center justify-center text-sm font-bold rounded transition-all flex-shrink-0
+                              ${activeFrameIndex === idx 
+                                ? 'border-2 border-[#1dae4c] text-white bg-[#141824]' 
+                                : 'border border-neutral-700 text-neutral-400 bg-[#141824] hover:text-white hover:border-neutral-500'}`}
+                          >
+                            {idx + 1}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
