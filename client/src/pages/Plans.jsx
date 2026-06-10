@@ -108,7 +108,7 @@ export default function Plans() {
             </div>
             
             <div className="flex items-baseline">
-              <span className="text-4xl font-mono font-black text-white">R$ 0</span>
+              <span className="text-4xl font-mono font-black text-white">€ 0</span>
               <span className="text-xs text-neutral-500 ml-2">/ sempre</span>
             </div>
 
@@ -168,7 +168,7 @@ export default function Plans() {
             </div>
             
             <div className="flex items-baseline">
-              <span className="text-4xl font-mono font-black text-white">R$ 149</span>
+              <span className="text-4xl font-mono font-black text-white">€ 14</span>
               <span className="text-xs text-neutral-500 ml-2">/ mês</span>
             </div>
 
@@ -227,7 +227,7 @@ export default function Plans() {
             </div>
             
             <div className="flex items-baseline">
-              <span className="text-4xl font-mono font-black text-white">R$ 499</span>
+              <span className="text-4xl font-mono font-black text-white">€ 25</span>
               <span className="text-xs text-neutral-500 ml-2">/ mês</span>
             </div>
 
