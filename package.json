@@ -11,6 +11,7 @@
     "node": "20.x"
   },
   "scripts": {
+    "build": "npm run build --prefix client && npx prisma generate --schema=database/schema.prisma",
     "postinstall": "prisma generate --schema=database/schema.prisma",
     "install:all": "npm install && npm install --prefix client && npm install --prefix server",
     "prisma:validate": "prisma validate --schema=database/schema.prisma",
