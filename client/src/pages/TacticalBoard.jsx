@@ -454,35 +454,38 @@ export default function TacticalBoard() {
             {/* RESTORED: Center Canvas Board & Footer */}
             <div className="lg:col-span-2 space-y-4" onPointerMove={handlePointerMove} onPointerUp={handlePointerUp}>
               {/* NEW: Timeline Header from Print */}
-              <div className="bg-[#1e2330] p-3 rounded-xl border border-neutral-800 shadow-xl flex flex-col gap-3">
-                <div className="flex flex-wrap items-center gap-3">
-                  <span className="text-neutral-300 text-sm font-medium">Fotogramas:</span>
-                  <button onClick={addFrame} className="bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-bold px-3 py-1.5 rounded transition-colors">
-                    + Fotograma
-                  </button>
-                  <button onClick={() => removeFrame(activeFrameIndex)} className="bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-bold px-3 py-1.5 rounded transition-colors">
-                    Remover
-                  </button>
+              <div className="bg-[#1e2330] py-2.5 px-4 rounded-xl border border-neutral-800 shadow-xl flex flex-col gap-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="text-neutral-300 text-sm font-medium">Fotogramas:</span>
+                    <button onClick={addFrame} className="bg-[#2a303c] hover:bg-[#343b49] border border-neutral-700 text-white text-xs font-bold px-3 py-1.5 rounded transition-colors">
+                      + Fotograma
+                    </button>
+                    <button onClick={() => removeFrame(activeFrameIndex)} className="bg-[#2a303c] hover:bg-[#343b49] border border-neutral-700 text-white text-xs font-bold px-3 py-1.5 rounded transition-colors">
+                      Remover
+                    </button>
 
-                  <div className="w-px h-5 bg-neutral-700 mx-1"></div>
+                    <div className="w-px h-5 bg-neutral-700 mx-1"></div>
 
-                  <span className="text-neutral-400 text-sm">Duração (s)</span>
-                  <input type="text" defaultValue="1,5" className="bg-[#141824] border border-neutral-700 rounded px-2 py-1 text-sm text-white w-14 text-center focus:outline-none focus:border-blue-500" />
+                    <span className="text-neutral-400 text-sm">Duração (s)</span>
+                    <input type="text" defaultValue="1,5" className="bg-[#141824] border border-neutral-700 rounded px-2 py-1 text-sm text-white w-14 text-center focus:outline-none focus:border-blue-500" />
 
-                  <div className="w-px h-5 bg-neutral-700 mx-1"></div>
+                    <div className="w-px h-5 bg-neutral-700 mx-1"></div>
 
-                  <button onClick={() => setIsPlaying(!isPlaying)} className="bg-green-600 hover:bg-green-500 text-white text-xs font-bold px-4 py-1.5 rounded transition-colors flex items-center gap-2">
-                    {isPlaying ? <Pause size={14} fill="currentColor" /> : <Play size={14} fill="currentColor" />} Reproduzir
-                  </button>
+                    <button onClick={() => setIsPlaying(!isPlaying)} className="bg-green-600 hover:bg-green-500 text-white text-xs font-bold px-4 py-1.5 rounded transition-colors flex items-center gap-2">
+                      {isPlaying ? <Pause size={14} fill="currentColor" /> : <Play size={14} fill="currentColor" />} Reproduzir
+                    </button>
+                  </div>
 
-                  <div className="w-px h-5 bg-neutral-700 mx-1"></div>
-
-                  <button className="bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-bold px-3 py-1.5 rounded transition-colors">
-                    Exportar Imagem
-                  </button>
-                  <button className="bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-bold px-3 py-1.5 rounded transition-colors">
-                    Exportar Vídeo
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <div className="w-px h-5 bg-neutral-700 mr-1"></div>
+                    <button className="bg-[#2a303c] hover:bg-[#343b49] border border-neutral-700 text-white text-xs font-bold px-3 py-1.5 rounded transition-colors">
+                      Exportar Imagem
+                    </button>
+                    <button className="bg-[#2a303c] hover:bg-[#343b49] border border-neutral-700 text-white text-xs font-bold px-3 py-1.5 rounded transition-colors">
+                      Exportar Vídeo
+                    </button>
+                  </div>
                 </div>
                 
                 {/* Frame list */}
