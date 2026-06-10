@@ -16,7 +16,7 @@
     "db:seed": "node database/seed.js"
   },
   "dependencies": {
-    "@prisma/client": "^5.14.0",
+    "pg": "^8.12.0",
     "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {

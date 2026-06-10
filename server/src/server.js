@@ -358,4 +358,10 @@ const startServer = async () => {
     process.exit(1);
   }
 };
-startServer();
+
+// Se não estiver rodando no Vercel, inicie o servidor localmente
+if (!process.env.VERCEL) {
+  startServer();
+}
+
+export default fastify;
