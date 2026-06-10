@@ -507,7 +507,7 @@ export default function TacticalBoard() {
               </div>
 
               {/* NEW: Horizontal Toolbar from Print */}
-              <div className="bg-[#1e2330] py-3 px-4 flex flex-wrap items-end gap-6 sm:gap-10 rounded-xl border border-neutral-800 shadow-xl">
+              <div className="bg-[#1e2330] py-3 px-4 flex flex-row items-end gap-6 sm:gap-8 rounded-xl border border-neutral-800 shadow-xl overflow-x-auto custom-scrollbar">
                 
                 {/* Left Side: Drawing Tools */}
                 <div className="flex flex-col gap-3 shrink-0">
@@ -530,16 +530,16 @@ export default function TacticalBoard() {
                       <button className="text-neutral-400 hover:text-white p-1.5"><MoreHorizontal size={16}/></button>
                     </div>
 
-                    <div className="flex items-center gap-2 sm:gap-4 ml-1">
+                    <div className="flex items-center gap-2 sm:gap-3 ml-1">
                       <div className="flex items-center gap-1 sm:gap-1.5">
-                        <span className="text-xs text-neutral-500 font-mono">S:</span>
+                        <span className="text-[11px] sm:text-xs text-neutral-500 font-mono">S:</span>
                         <button className="bg-blue-600 p-1.5 rounded hover:bg-blue-500 text-white"><Minus size={16}/></button>
                         <button className="text-neutral-400 hover:text-white p-1.5"><ArrowLeft size={16}/></button>
                         <button className="text-neutral-400 hover:text-white p-1.5"><MoreHorizontal size={16} className="rotate-90"/></button>
                       </div>
                       
                       <div className="flex items-center gap-1 sm:gap-1.5">
-                        <span className="text-xs text-neutral-500 font-mono">E:</span>
+                        <span className="text-[11px] sm:text-xs text-neutral-500 font-mono">E:</span>
                         <button className="text-neutral-400 hover:text-white p-1.5"><Minus size={16}/></button>
                         <button className="bg-blue-600 p-1.5 rounded hover:bg-blue-500 text-white"><ArrowRight size={16}/></button>
                         <button className="text-neutral-400 hover:text-white p-1.5"><MoreHorizontal size={16} className="rotate-90"/></button>
@@ -552,33 +552,33 @@ export default function TacticalBoard() {
                   </div>
 
                   {/* Row 2 */}
-                  <div className="flex items-center gap-3 sm:gap-5 mt-1">
+                  <div className="flex items-center gap-3 sm:gap-4 mt-1">
                     <div className="w-px h-4 bg-neutral-700/50"></div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-neutral-400 font-mono">Campo</span>
+                    <div className="flex items-center gap-1.5 sm:gap-2">
+                      <span className="text-[11px] sm:text-xs text-neutral-400 font-mono">Campo</span>
                       <div className="w-5 h-5 sm:w-6 sm:h-6 bg-blue-500 rounded border border-neutral-600 cursor-pointer"></div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-neutral-400 font-mono">Linhas</span>
+                    <div className="flex items-center gap-1.5 sm:gap-2">
+                      <span className="text-[11px] sm:text-xs text-neutral-400 font-mono">Linhas</span>
                       <div className="w-5 h-5 sm:w-6 sm:h-6 bg-white rounded border border-neutral-600 cursor-pointer"></div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-neutral-400 font-mono">Cor</span>
+                    <div className="flex items-center gap-1.5 sm:gap-2">
+                      <span className="text-[11px] sm:text-xs text-neutral-400 font-mono">Cor</span>
                       <div className="w-5 h-5 sm:w-6 sm:h-6 bg-white rounded border border-neutral-600 cursor-pointer"></div>
                     </div>
-                    <div className="flex items-center gap-2 sm:gap-3 sm:ml-2">
-                      <span className="text-xs text-neutral-400 font-mono">Etiqueta</span>
-                      <input type="text" placeholder="Nº ou texto" className="bg-[#141824] border border-neutral-700 rounded-lg px-2 sm:px-3 py-1.5 text-xs text-white w-24 sm:w-28 focus:outline-none focus:border-blue-500 placeholder-neutral-600" />
+                    <div className="flex items-center gap-1.5 sm:gap-2 sm:ml-2">
+                      <span className="text-[11px] sm:text-xs text-neutral-400 font-mono">Etiqueta</span>
+                      <input type="text" placeholder="Nº ou texto" className="bg-[#141824] border border-neutral-700 rounded-lg px-2 sm:px-3 py-1.5 text-xs text-white w-20 sm:w-24 focus:outline-none focus:border-blue-500 placeholder-neutral-600" />
                     </div>
                   </div>
 
                   {/* Row 3 */}
                   <div className="flex items-center gap-4 mt-1">
-                    <button className="bg-[#141824] hover:bg-[#1e2330] text-white text-xs font-bold px-4 py-2 rounded border border-neutral-700 transition-colors">
+                    <button className="bg-[#141824] hover:bg-[#1e2330] text-white text-[11px] sm:text-xs font-bold px-3 sm:px-4 py-2 rounded border border-neutral-700 transition-colors">
                       Meio Campo
                     </button>
                     <div className="w-px h-4 bg-neutral-700/50"></div>
-                    <button onClick={clearCanvas} className="text-[#ff5555] border border-red-900/50 bg-[#1e1414] hover:bg-[#2a1a1a] text-xs font-bold px-4 py-2 rounded transition-colors whitespace-nowrap">
+                    <button onClick={clearCanvas} className="text-[#ff5555] border border-red-900/50 bg-[#1e1414] hover:bg-[#2a1a1a] text-[11px] sm:text-xs font-bold px-3 sm:px-4 py-2 rounded transition-colors whitespace-nowrap">
                       Apagar Seleção
                     </button>
                   </div>
@@ -586,12 +586,12 @@ export default function TacticalBoard() {
 
                 {/* Right Side: Export & Frames */}
                 <div className="flex items-end gap-3 shrink-0 pb-0.5">
-                  <button className="bg-[#2a303c] hover:bg-[#343b49] border border-neutral-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors flex flex-col items-center justify-center leading-tight h-[52px] min-w-[90px]">
+                  <button className="bg-[#2a303c] hover:bg-[#343b49] border border-neutral-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors flex flex-col items-center justify-center leading-tight h-[52px] min-w-[80px] sm:min-w-[90px]">
                     <span>Exportar</span>
                     <span>Imagem</span>
                   </button>
 
-                  <div className="flex items-center gap-2 overflow-x-auto custom-scrollbar h-[52px]">
+                  <div className="flex items-center gap-2 h-[52px]">
                     {frames.map((_, idx) => (
                       <button 
                         key={idx} 
